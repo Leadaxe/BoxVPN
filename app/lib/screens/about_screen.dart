@@ -105,6 +105,8 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 16),
           const _UpdateBlock(),
           const SizedBox(height: 8),
+          const _SourcesCard(),
+          const SizedBox(height: 8),
           Card(
             child: Column(
               children: [
@@ -324,6 +326,74 @@ class _DonateTile extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// §426 — все каналы распространения, всегда. До этого ссылка «Open in Google
+/// Play» / «View release» жила только внутри [_UpdateBlock] и появлялась лишь
+/// когда чекер нашёл новую версию; переехать на другой источник (или просто
+/// открыть страницу своего стора) было неоткуда. Текущий канал помечен, но
+/// тоже кликабелен — страница стора нужна и без обновления (отзыв, шаринг).
+class _SourcesCard extends StatelessWidget {
+  const _SourcesCard();
+
+  static IconData _icon(InstallSource source) => switch (source) {
+        InstallSource.github => Icons.download_outlined,
+        InstallSource.play => Icons.shop_outlined,
+        InstallSource.fdroid => Icons.storefront_outlined,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final cs = Theme.of(context).colorScheme;
+    final current = InstallSourceResolver.current;
+    return Card(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: Text(
+              getLocalText.s("Where to get L×Box"),
+              style: const TextStyle(fontWeight: FontWeight.w500),
+            ),
+          ),
+          for (final source in InstallSource.values) ...[
+            ListTile(
+              leading: Icon(_icon(source)),
+              title: Text(source.label),
+              subtitle: source == current
+                  ? Text(getLocalText.s("Installed from here"))
+                  : null,
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (source == current)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Icon(Icons.check, size: 18, color: cs.primary),
+                    ),
+                  const Icon(Icons.open_in_new, size: 18),
+                ],
+              ),
+              onTap: () => ul.UrlLauncher.open(
+                source.pageUrl,
+                fallbackUrl: source.updateUrlFallback,
+              ),
+            ),
+            if (source != InstallSource.values.last) const Divider(height: 1),
+          ],
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: Text(
+              getLocalText.s(
+                  "Each source signs the app with its own key, so builds from different sources do not install over each other. To switch: back up your settings, uninstall L×Box, install it from the new source and restore the backup."),
+              style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

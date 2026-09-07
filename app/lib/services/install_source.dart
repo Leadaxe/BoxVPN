@@ -146,4 +146,14 @@ extension InstallSourceX on InstallSource {
         InstallSource.play => ProjectLinks.playPageWeb,
         InstallSource.github || InstallSource.fdroid => null,
       };
+
+  /// §426 — страница канала БЕЗ привязки к релизу: About показывает все три
+  /// источника всегда, а не только когда чекер нашёл новую версию. У сторов
+  /// это та же страница приложения, что и в [updateUrl]; у GitHub — «latest»
+  /// вместо конкретного тега. Фолбэк тот же — [updateUrlFallback].
+  String get pageUrl => switch (this) {
+        InstallSource.github => ProjectLinks.latestRelease,
+        InstallSource.play => ProjectLinks.playPage,
+        InstallSource.fdroid => ProjectLinks.fdroidPage,
+      };
 }
