@@ -29,6 +29,9 @@ class GeneralTab extends StatelessWidget {
     required this.onAutoReloadOnChangeChanged,
     required this.onAddQuickSettingsTile,
     required this.onOpenBackup,
+    required this.region,
+    required this.detectedRegion,
+    required this.onEditRegion,
   });
 
   final bool loaded;
@@ -50,6 +53,13 @@ class GeneralTab extends StatelessWidget {
   final ValueChanged<bool> onAutoReloadOnChangeChanged;
   final VoidCallback onAddQuickSettingsTile;
   final VoidCallback onOpenBackup;
+
+  /// §425 — регион использования: `auto` | `none` | код страны.
+  final String region;
+
+  /// §425 — автоопределённая страна (`''` — не определилась).
+  final String detectedRegion;
+  final VoidCallback onEditRegion;
 
   @override
   Widget build(BuildContext context) {
@@ -109,6 +119,28 @@ class GeneralTab extends StatelessWidget {
                 title: Text('Русский'), // l10n-exempt: endonym
               ),
             ],
+          ),
+        ),
+        const Divider(height: 32),
+        // §425 — регион использования: общая настройка, потребители — пулы
+        // WARP (loc.<cc>), дальше региональные дефолты правил.
+        Text(getLocalText.s("Region"),
+            style: Theme.of(context).textTheme.titleMedium),
+        const SizedBox(height: 8),
+        ListTile(
+          leading: const Icon(Icons.public_outlined),
+          title: Text(getLocalText.s("Usage region")),
+          subtitle: Text(regionLabel(region, detectedRegion)),
+          trailing: const Icon(Icons.edit_outlined),
+          onTap: loaded ? onEditRegion : null,
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+          child: Text(
+            getLocalText.s("The country you use the app in. Drives region-specific defaults: today the WARP SNI pool, later routing rule presets. Auto = country of the mobile network, then of the device locale."),
+            style: TextStyle(
+                fontSize: 11,
+                color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ),
         const Divider(height: 32),
@@ -213,5 +245,16 @@ class GeneralTab extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  /// §425 — подпись значения региона для плитки и диалога.
+  static String regionLabel(String region, String detected) {
+    if (region == 'none') return getLocalText.s("Not set");
+    if (region == 'auto') {
+      return detected.isEmpty
+          ? getLocalText.s("Auto · country not detected")
+          : getLocalText.s("Auto · %s", detected.toUpperCase());
+    }
+    return region.toUpperCase();
   }
 }

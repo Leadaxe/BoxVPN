@@ -216,7 +216,7 @@ class SettingsStorage {
     'notif_perm_prompted_v1', // §128 — promt уведомлений показан
     'allow_rotation', // §220 — снятие портретной фиксации
     'app_language', // §279 — язык приложения (system|en|ru); НЕ config-var
-    'warp_region', // §425 — регион пулов WARP (auto|default|<cc>); НЕ config-var
+    'region', // §425 — регион использования (auto|none|<cc>); НЕ config-var
   };
 
   /// Полный allowlist для подключей `vars` при импорте: кодовые флаги ∪ все
@@ -719,23 +719,23 @@ class SettingsStorage {
     await _mirrorAppLanguageToNative(v);
   }
 
-  /// §425 — регион пулов WARP (`assets/warp_endpoints.json` → `loc.<cc>`).
-  /// `auto` — по стране сети/локали, `default` — корень без региона, иначе
-  /// код страны (нижний регистр, 2 буквы). Прочее → `auto`.
-  static const warpRegionAuto = 'auto';
-  static const warpRegionDefault = 'default';
+  /// §425 — регион использования приложения (см. `UsageRegion`). `auto` —
+  /// по стране сети/локали, `none` — без региона, иначе код страны (нижний
+  /// регистр, 2 буквы). Прочее → `auto`.
+  static const regionAuto = 'auto';
+  static const regionNone = 'none';
 
-  static String normalizeWarpRegion(String value) {
+  static String normalizeRegion(String value) {
     final v = value.trim().toLowerCase();
-    if (v == warpRegionAuto || v == warpRegionDefault) return v;
-    return RegExp(r'^[a-z]{2}$').hasMatch(v) ? v : warpRegionAuto;
+    if (v == regionAuto || v == regionNone) return v;
+    return RegExp(r'^[a-z]{2}$').hasMatch(v) ? v : regionAuto;
   }
 
-  static Future<String> getWarpRegion() async =>
-      normalizeWarpRegion(await getVar('warp_region', warpRegionAuto));
+  static Future<String> getRegion() async =>
+      normalizeRegion(await getVar('region', regionAuto));
 
-  static Future<void> setWarpRegion(String value) =>
-      setVar('warp_region', normalizeWarpRegion(value));
+  static Future<void> setRegion(String value) =>
+      setVar('region', normalizeRegion(value));
 
   // ---------------------------------------------------------------------------
   // App update check (§036) — GitHub Releases polling on launch with 24h cap.

@@ -1,8 +1,8 @@
-# 425 — WARP: региональные секции `loc.<cc>` пула endpoint'ов + настройка Region
+# 425 — Регион использования (App Settings → General) + секции `loc.<cc>` пула WARP
 
 | Field | Value |
 |------|----------|
-| Status | Implemented (unit-тесты); DEVICE-PENDING: нативный `networkCountry` и плитка в App Settings на устройстве не проверены |
+| Status | Implemented (unit-тесты); DEVICE-PENDING: нативный `networkCountry` и плитка App Settings → General → Region на устройстве не проверены |
 | Started | 2026-09-06 |
 | Trigger | Отчёт k-dmitriy (4PDA, 06.09.2026): `deepseek.com` лежит внутри «российского» хвоста `sni_pool` «и в генераторе, и в экспериментальном». Разбор показал, что дело не в порядке: российские домены в пуле полезны только за российским DPI (§143 — ТСПУ режет по несовпадению SNI с блоком), а для юзера в Израиле или ЕС они шум. |
 | Related | [§136](136-warp-quic-i1-generator.md) (WG SNI-пул), [§130](../features/130%20masque-warp-transport/spec.md) (MASQUE SNI-пул), [§305](305-masque-endpoint-h2-pool-and-override.md) (JSON-окно эксперимента, один парсер), [§418](418-warp-api-host-failover.md) (последнее расширение пулов), [§424](424-warp-preset-recommended-mark-leak.md) (первая половина того же отчёта) |
@@ -35,24 +35,29 @@
   (совпали бы с корнем), `cn`/`ir` — когда появится подтверждённый набор
   (решение владельца 2026-09-06).
 
-## Выбор региона
+## Регион использования (общая настройка)
 
-Настройка `warp_region` (vars, в allowlist бэкапа): `auto` (дефолт) | `default` | `<cc>`.
+Решение владельца 2026-09-08: регион — не WARP-настройка, а общая, рядом с языком.
+Потребители: сегодня пул WARP (`loc.<cc>`), дальше региональные дефолты правил
+маршрутизации. Сервис `UsageRegion` (`lib/services/usage_region.dart`).
 
-- `auto` → `WarpRegion.detected()`: нативный `networkCountry` (`TelephonyManager.networkCountryIso`,
+Настройка `region` (vars, в allowlist бэкапа): `auto` (дефолт) | `none` | `<cc>`.
+
+- `auto` → `UsageRegion.detected()`: нативный `networkCountry` (`TelephonyManager.networkCountryIso`,
   затем `simCountryIso`; разрешений не требует) → страна из `Platform.localeName` → `''`.
   Код страны, а не UI-язык: русскоязычный юзер в Израиле сидит не за ТСПУ.
   Кэш на процесс; смена SIM в рантайме не отслеживается.
-- `default` → корень без региона.
-- Явный код → как есть, даже если секции в asset'е нет (тогда корень).
+- `none` → без региона (для WARP — корень asset'а).
+- Явный код → как есть; потребитель без секции для этого кода берёт свой дефолт.
 
-UI: App Settings → Subscriptions → блок «WARP» → «Endpoint pool region». Диалог:
-Auto (с показом определённой страны) / Default / регионы из ключей `loc` asset'а.
-Новая секция в JSON появляется в меню без правки Dart.
+UI: App Settings → General → блок «Region» → «Usage region». Диалог: Auto (с показом
+определённой страны) / Not set / известные регионы (сегодня — ключи `loc` пула WARP)
+/ «Other country code…» — произвольный двухбуквенный код. Новая секция в JSON
+появляется в меню без правки Dart.
 
 ## Где применяется
 
-- `WarpEndpointPicker.load({region})` — визард WARP, `generateWarp`, API-хосты. Кэш
+- `WarpEndpointPicker.load({region})` (регион из `UsageRegion.effective()`) — визард WARP, `generateWarp`, API-хосты. Кэш
   пикера привязан к региону: смена настройки → следующий `load` перечитывает.
 - Экран эксперимента (§305): JSON-окно показывает asset целиком, вместе с `loc`;
   `_parsePool` накладывает регион по той же настройке. Юзер правит один формат.
@@ -64,7 +69,7 @@ Auto (с показом определённой страны) / Default / ре�
   `applyRegion` не мутирует исходник.
 - `test/services/warp_endpoint_picker_test.dart` — корень без `.ru`, `loc.ru` с ними,
   регион не трогает блоки/порты/пресеты, `availableRegions`, кэш по региону.
-- `test/services/warp_region_test.dart` — нормализация настройки, `effective` для
+- `test/services/usage_region_test.dart` — нормализация настройки, `effective` для
   трёх режимов, кэш детекта.
 
 ## Не сделано

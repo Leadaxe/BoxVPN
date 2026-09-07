@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lxbox/services/warp/warp_client.dart' show WarpApi;
 import 'package:lxbox/services/warp/warp_endpoint_picker.dart';
-import 'package:lxbox/services/warp/warp_region.dart';
+import 'package:lxbox/services/usage_region.dart';
 
 /// §136 — рандом WARP-endpoint из asset (формат ip:port, диапазоны, SNI-пул).
 void main() {
@@ -11,7 +11,7 @@ void main() {
   // path_provider) и нативный детект; в тестах регион фиксируем сами.
   setUp(() {
     WarpEndpointPicker.resetForTest();
-    WarpRegion.resetForTest();
+    UsageRegion.resetForTest();
   });
 
   test('load: asset парсится, есть данные', () async {

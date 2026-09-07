@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'scan/scan_pool.dart';
-import 'warp_region.dart';
+import '../usage_region.dart';
 
 /// §136/§305 — рандом WARP-endpoint из зашитых Cloudflare-блоков. **БЕЗ пробы.**
 ///
@@ -31,10 +31,10 @@ class WarpEndpointPicker {
   /// [hasData] / fallback на дефолтный endpoint).
   ///
   /// §425 — [region]: код страны для секции `loc.<cc>`; null → эффективный
-  /// регион из настройки ([WarpRegion.effective]). Кэш привязан к региону:
+  /// регион из настройки ([UsageRegion.effective]). Кэш привязан к региону:
   /// смена настройки → следующий load перечитывает.
   static Future<WarpEndpointPicker> load({String? region}) async {
-    final r = region ?? await WarpRegion.effective();
+    final r = region ?? await UsageRegion.effective();
     if (_cached != null && _cachedRegion == r) return _cached!;
     try {
       final raw = await rootBundle.loadString(_assetPath);

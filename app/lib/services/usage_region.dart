@@ -2,20 +2,22 @@ import 'dart:io' show Platform;
 
 import 'package:flutter/services.dart';
 
-import '../app_log.dart';
-import '../platform_channels.dart';
-import '../settings_storage.dart';
+import 'app_log.dart';
+import 'platform_channels.dart';
+import 'settings_storage.dart';
 
-/// §425 — регион пулов WARP: какая секция `loc.<cc>` asset'а
-/// `warp_endpoints.json` накладывается на корень.
+/// §425 — регион использования приложения: страна, в которой юзер сидит за
+/// сетью. Общая настройка (App Settings → General, рядом с языком), а не
+/// WARP-специфичная: сегодня по ней выбирается секция `loc.<cc>` пула WARP,
+/// дальше — региональные дефолты правил маршрутизации.
 ///
-/// Настройка `warp_region` (App Settings): `auto` — страна определяется сама,
-/// `default` — корень без региона, иначе явный код страны. Автоопределение:
-/// страна текущей сети (MCC оператора / SIM, нативно) → страна из локали
-/// устройства → пусто. Код страны, а не UI-язык: русскоязычный юзер в
-/// Израиле сидит не за ТСПУ, и российские SNI ему ни к чему.
-class WarpRegion {
-  WarpRegion._();
+/// Настройка `region`: `auto` — страна определяется сама, `none` — без региона,
+/// иначе явный код страны. Автоопределение: страна текущей сети (MCC оператора
+/// / SIM, нативно) → страна из локали устройства → пусто. Код страны, а не
+/// UI-язык: русскоязычный юзер в Израиле сидит не за ТСПУ, и российские
+/// дефолты ему ни к чему.
+class UsageRegion {
+  UsageRegion._();
 
   static const _channel = MethodChannel(PlatformChannels.utils);
 
@@ -27,9 +29,9 @@ class WarpRegion {
 
   /// Эффективный код региона (`''` = корень). Учитывает настройку.
   static Future<String> effective() async {
-    final setting = await SettingsStorage.getWarpRegion();
-    if (setting == SettingsStorage.warpRegionDefault) return '';
-    if (setting != SettingsStorage.warpRegionAuto) return setting;
+    final setting = await SettingsStorage.getRegion();
+    if (setting == SettingsStorage.regionNone) return '';
+    if (setting != SettingsStorage.regionAuto) return setting;
     return detected();
   }
 
@@ -44,7 +46,7 @@ class WarpRegion {
           : await _channel.invokeMethod<String>('networkCountry');
     } catch (e) {
       // Не Android / канал недоступен (тесты) — идём в локаль.
-      AppLog.I.debug('WarpRegion: native lookup failed ($e)');
+      AppLog.I.debug('UsageRegion: native lookup failed ($e)');
     }
     cc ??= _localeCountry();
     final norm = cc.trim().toLowerCase();

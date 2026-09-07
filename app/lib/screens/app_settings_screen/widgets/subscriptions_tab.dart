@@ -32,9 +32,6 @@ class SubscriptionsTab extends StatelessWidget {
     required this.onEditDeviceOs,
     required this.onEditVerOs,
     required this.onEditDeviceModel,
-    required this.warpRegion,
-    required this.warpDetectedRegion,
-    required this.onEditWarpRegion,
   });
 
   final bool loaded;
@@ -66,13 +63,6 @@ class SubscriptionsTab extends StatelessWidget {
   final VoidCallback onEditDeviceOs;
   final VoidCallback onEditVerOs;
   final VoidCallback onEditDeviceModel;
-
-  /// §425 — регион пулов WARP: `auto` | `default` | код страны.
-  final String warpRegion;
-
-  /// §425 — автоопределённая страна (`''` — не определилась).
-  final String warpDetectedRegion;
-  final VoidCallback onEditWarpRegion;
 
   @override
   Widget build(BuildContext context) {
@@ -165,37 +155,8 @@ class SubscriptionsTab extends StatelessWidget {
             ),
           ),
         ],
-        const Divider(height: 32),
-        // l10n-exempt — имя продукта, не переводится.
-        Text('WARP', style: theme.textTheme.titleMedium),
-        const SizedBox(height: 8),
-        ListTile(
-          leading: const Icon(Icons.public_outlined),
-          title: Text(getLocalText.s("Endpoint pool region")),
-          subtitle: Text(warpRegionLabel(warpRegion, warpDetectedRegion)),
-          trailing: const Icon(Icons.edit_outlined),
-          onTap: loaded ? onEditWarpRegion : null,
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
-          child: Text(
-            getLocalText.s("Picks the SNI pool for the WARP generator and the experiment by country: Russian domains only make sense behind Russian DPI. Auto = country of the mobile network, then of the device locale."),
-            style: TextStyle(fontSize: 11, color: cs.onSurfaceVariant),
-          ),
-        ),
       ],
     );
-  }
-
-  /// §425 — подпись значения региона для плитки и диалога.
-  static String warpRegionLabel(String region, String detected) {
-    if (region == 'default') return getLocalText.s("Default (no region)");
-    if (region == 'auto') {
-      return detected.isEmpty
-          ? getLocalText.s("Auto · country not detected, default pool")
-          : getLocalText.s("Auto · %s", detected.toUpperCase());
-    }
-    return region.toUpperCase();
   }
 
   Widget _editRow(

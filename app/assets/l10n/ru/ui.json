@@ -2326,6 +2326,9 @@
   "Installed from %s": {
     "value": "Установлено из %s"
   },
+  "Installed from here": {
+    "value": "Установлено отсюда"
+  },
   "Interrupt connections on switch": {
     "value": "Разрывать соединения при переключении"
   },
@@ -4489,6 +4492,9 @@
   "WebSocket early data \"?ed=%d\" was moved out of the path into a separate field, as the core requires. The node works; the path in the config is not literally the one from the link.": {
     "value": "Ранние данные WebSocket «?ed=%d» перенесены из пути в отдельное поле, как требует ядро. Узел работает, но путь в конфиге отличается от указанного в ссылке."
   },
+  "Where to get L×Box": {
+    "value": "Где взять L×Box"
+  },
   "What goes into this direction": {
     "value": "Что входит в Направление"
   },
@@ -4928,19 +4934,28 @@
   "Config rebuild failed: %s": {
     "value": "Сборка конфига не удалась: %s"
   },
-  "Endpoint pool region": {
-    "value": "Регион пула endpoint'ов"
-  },
-  "Picks the SNI pool for the WARP generator and the experiment by country: Russian domains only make sense behind Russian DPI. Auto = country of the mobile network, then of the device locale.": {
-    "value": "Выбирает SNI-пул для генератора WARP и эксперимента по стране: российские домены имеют смысл только за российским DPI. Auto = страна мобильной сети, затем локали устройства."
-  },
-  "Default (no region)": {
-    "value": "По умолчанию (без региона)"
-  },
-  "Auto · country not detected, default pool": {
-    "value": "Auto · страна не определена, пул по умолчанию"
-  },
   "Auto · %s": {
     "value": "Auto · %s"
+  },
+  "Usage region": {
+    "value": "Регион использования"
+  },
+  "The country you use the app in. Drives region-specific defaults: today the WARP SNI pool, later routing rule presets. Auto = country of the mobile network, then of the device locale.": {
+    "value": "Страна, в которой вы пользуетесь приложением. Определяет региональные дефолты: сегодня SNI-пул WARP, дальше пресеты правил маршрутизации. Auto = страна мобильной сети, затем локали устройства."
+  },
+  "Not set": {
+    "value": "Не задан"
+  },
+  "Auto · country not detected": {
+    "value": "Auto · страна не определена"
+  },
+  "Other country code…": {
+    "value": "Другой код страны…"
+  },
+  "Country code (2 letters)": {
+    "value": "Код страны (2 буквы)"
+  },
+  "Region": {
+    "value": "Регион"
   }
 }

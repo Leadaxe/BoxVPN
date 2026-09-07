@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import '../services/l10n/locale_controller.dart';
 import '../services/warp/scan/scan_pool.dart';
 import '../services/warp/warp_endpoint_picker.dart';
-import '../services/warp/warp_region.dart';
+import '../services/usage_region.dart';
 
 /// §305 — экран настройки WARP-эксперимента (генератор нод). Вынесен из попапа:
 /// JSON-пул большой, в диалоге тесно. Пользователь задаёт число нод и
@@ -50,7 +50,7 @@ class _WarpExperimentScreenState extends State<WarpExperimentScreen> {
   /// настройке, что и в визарде: юзер правит один формат.
   Future<ScanPool?> _parsePool(String raw) async {
     try {
-      final region = await WarpRegion.effective();
+      final region = await UsageRegion.effective();
       return ScanPool.fromFullJson(jsonDecode(raw) as Map<String, dynamic>,
           region: region);
     } catch (_) {
