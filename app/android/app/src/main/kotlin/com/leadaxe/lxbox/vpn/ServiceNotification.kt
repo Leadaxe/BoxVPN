@@ -16,6 +16,9 @@ class ServiceNotification(private val service: Service) {
         // Wire: id канала стабилен между релизами и локалями — НЕ в ресурсы.
         private const val CHANNEL_ID = "boxvpn_vpn_channel"
         private const val NOTIFICATION_ID = 1
+        /// §428 — отдельное (не foreground) уведомление: сервис уже остановлен,
+        /// а сказать юзеру надо — UI-процесса при sticky-рестарте нет.
+        private const val ALERT_NOTIFICATION_ID = 2
 
         /// §279 — идемпотентный (пере)сабмит канала. createNotificationChannel
         /// с тем же id обновляет имя/описание (документированный rename-путь) —
@@ -110,6 +113,31 @@ class ServiceNotification(private val service: Service) {
             )
         } else {
             service.startForeground(NOTIFICATION_ID, notification)
+        }
+    }
+
+    /// §428 — обычное уведомление на том же канале, живёт после stopSelf().
+    /// Без POST_NOTIFICATIONS (API 33+) система молча его не покажет — это
+    /// допустимо: сервис в любом случае остановлен, шторм прерван.
+    fun showAlert(title: String, text: String) {
+        val openIntent = service.packageManager
+            .getLaunchIntentForPackage(service.packageName)
+        val builder = NotificationCompat.Builder(service, CHANNEL_ID)
+            .setSmallIcon(android.R.drawable.ic_lock_lock)
+            .setContentTitle(title)
+            .setContentText(text)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+            .setAutoCancel(true)
+        if (openIntent != null) {
+            builder.setContentIntent(
+                PendingIntent.getActivity(
+                    service, 0, openIntent,
+                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                )
+            )
+        }
+        runCatching {
+            BoxApplication.notificationManager.notify(ALERT_NOTIFICATION_ID, builder.build())
         }
     }
 

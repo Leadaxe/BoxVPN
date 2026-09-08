@@ -1269,28 +1269,39 @@ class VpnPlugin : FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware,
     /// прикрывать дыру (раньше статус залипал в Started и метод выходил первой
     /// строкой).
     ///
-    /// `ownerUid` доступен с API 29; на 24-28 деталь недоступна, поэтому там
-    /// остаётся прежнее поведение (считаем чужим — консервативно: лишний вопрос
-    /// юзеру безопаснее молчаливого отзыва чужого туннеля).
+    /// §427 (issue #115) — смотрим ТОЛЬКО `activeNetwork`, а не `allNetworks`.
+    /// `allNetworks` отдаёт все сети фреймворка, включая VPN соседнего профиля
+    /// (Shelter / work profile); Android держит по одному VPN-слоту на ПРОФИЛЬ,
+    /// такой туннель нам не мешает и нашим `establish()` не отзывается, а
+    /// диалог §211 на него срабатывал ложно. `activeNetwork` — дефолтная сеть
+    /// для нашего uid: VPN другого профиля в неё не попадает никогда, VPN
+    /// нашего профиля попадает, если не исключил нас из туннеля (тот редкий
+    /// случай мы перебьём молча, как до §211 — слот всё равно один).
+    /// Публичного API «относится ли сеть к моему профилю» нет, а `ownerUid`
+    /// для чужих сетей редактируется в INVALID_UID.
+    ///
+    /// `getOwnerUid()` публичен с API 30 (в android-10 есть только скрытый
+    /// `getEstablishingVpnAppUid()`): на Android 10 обращение бросает
+    /// `NoSuchMethodError` — это `Error`, не `Exception`, прежний catch его не
+    /// ловил и Start ронял приложение. Гейт на R, ловим Throwable. На 24-29
+    /// деталь недоступна — считаем чужим (консервативно: лишний вопрос юзеру
+    /// безопаснее молчаливого отзыва чужого туннеля).
     private fun isForeignVpnActive(): Boolean {
         if (BoxVpnService.currentStatus != VpnStatus.Stopped) return false
         val cm = BoxApplication.connectivity
-        val myUid = android.os.Process.myUid()
         return try {
-            cm.allNetworks.any { n ->
-                val caps = cm.getNetworkCapabilities(n) ?: return@any false
-                if (!caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) return@any false
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) return@any true
-                val owner = caps.ownerUid
-                if (owner == myUid) {
-                    Log.d(TAG, "[vpn §361] skipping our own orphaned VPN network (uid=$owner)")
-                    false
-                } else {
-                    true
-                }
+            val n = cm.activeNetwork ?: return false
+            val caps = cm.getNetworkCapabilities(n) ?: return false
+            if (!caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN)) return false
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R &&
+                caps.ownerUid == android.os.Process.myUid()
+            ) {
+                Log.d(TAG, "[vpn §361] skipping our own orphaned VPN network (uid=${caps.ownerUid})")
+                return false
             }
-        } catch (e: Exception) {
-            Log.w(TAG, "isForeignVpnActive: $e")
+            true
+        } catch (t: Throwable) {
+            Log.w(TAG, "isForeignVpnActive: $t")
             false
         }
     }

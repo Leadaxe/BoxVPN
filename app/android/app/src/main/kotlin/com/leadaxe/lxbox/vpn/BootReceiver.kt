@@ -74,6 +74,13 @@ class BootReceiver : BroadcastReceiver() {
         /// background) → гарантированный retry из MainActivity.onResume
         /// (foreground, rate-limit не применяется).
         private const val KEY_SHORTCUT_RELABEL_PENDING = "shortcut_relabel_pending"
+        /// §428 — предохранитель от шторма `START_STICKY`-рестартов: сколько
+        /// раз система пересоздала сервис с null-intent в текущем окне и когда
+        /// окно открылось. Сбрасывается успешным `Started`.
+        private const val KEY_STICKY_RESTART_COUNT = "sticky_restart_count"
+        private const val KEY_STICKY_RESTART_WINDOW_START = "sticky_restart_window_start"
+        const val STICKY_RESTART_WINDOW_MS = 5 * 60 * 1000L
+        const val STICKY_RESTART_LIMIT = 3
 
         /// Три режима фоновой работы tunnel'а. По умолчанию "never" — максимум
         /// стабильности, минимум экономии батареи. VPN-пользователи обычно
@@ -113,6 +120,29 @@ class BootReceiver : BroadcastReceiver() {
         fun setShortcutRelabelPending(context: Context, pending: Boolean) {
             context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
                 .edit().putBoolean(KEY_SHORTCUT_RELABEL_PENDING, pending).apply()
+        }
+
+        /// §428 — зафиксировать sticky-рестарт; возвращает номер рестарта в
+        /// текущем окне (1 = первый). Окно старше STICKY_RESTART_WINDOW_MS
+        /// открывается заново.
+        fun noteStickyRestart(context: Context, now: Long = System.currentTimeMillis()): Int {
+            val prefs = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+            val windowStart = prefs.getLong(KEY_STICKY_RESTART_WINDOW_START, 0L)
+            val inWindow = windowStart > 0L && now - windowStart < STICKY_RESTART_WINDOW_MS
+            val count = if (inWindow) prefs.getInt(KEY_STICKY_RESTART_COUNT, 0) + 1 else 1
+            prefs.edit()
+                .putInt(KEY_STICKY_RESTART_COUNT, count)
+                .putLong(KEY_STICKY_RESTART_WINDOW_START, if (inWindow) windowStart else now)
+                .apply()
+            return count
+        }
+
+        fun resetStickyRestarts(context: Context) {
+            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                .edit()
+                .remove(KEY_STICKY_RESTART_COUNT)
+                .remove(KEY_STICKY_RESTART_WINDOW_START)
+                .apply()
         }
 
         fun isShortcutRelabelPending(context: Context): Boolean {

@@ -28,6 +28,9 @@
     <string name="stop_alert_empty_config">Empty configuration</string>
     <string name="stop_alert_no_command_server">CommandServer not initialized</string>
     <string name="stop_alert_start_failed">Failed to start service: %1$s</string>
+    <!-- Sticky-restart storm guard -->
+    <string name="sticky_restart_storm_title">VPN stopped</string>
+    <string name="sticky_restart_storm_text">VPN was restarted too many times after the app was killed. Start it manually.</string>
 
     <!-- QS tile subtitles -->
     <string name="tile_status_connecting">Connecting…</string>

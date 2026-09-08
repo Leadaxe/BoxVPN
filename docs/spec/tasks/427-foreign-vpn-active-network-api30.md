@@ -2,7 +2,7 @@
 
 | Field | Value |
 |------|----------|
-| Status | Spec (не начато) |
+| Status | Done (код), DEVICE-PENDING: прогон на AVD LxBox_test не сделан |
 | Started | 2026-09-08 |
 | Trigger | [Issue #115](https://github.com/Leadaxe/LxBox/issues/115) (Alex01d, 08.09.2026): VPN из рабочего профиля Shelter ловится как конфликтующий; там же замечание про `getOwnerUid()` на Android 10 |
 | Related | [§211](211-foreign-vpn-switch-dialog.md) (сам диалог «активен другой VPN»), [§224](224-foreign-vpn-revoke-ux.md) (UX отзыва), [§361](361-late-started-status-after-service-destroy.md) (осиротевший tun, ради него добавили проверку `ownerUid`), [§428](428-vpn-service-start-sticky.md) (второй баг из того же issue) |
