@@ -84,6 +84,8 @@ class BoxService(
     /// Scoped to service lifetime — all child coroutines are cancelled in onDestroy / doStop.
     /// Recreated on each start since cancel() is terminal for a scope.
     private var serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    /// §428 — тикер сторожа (VpnWatchdog.startTicker) на serviceScope.
+    private var watchdogJob: kotlinx.coroutines.Job? = null
 
     /// §140 — отдельный scope ТОЛЬКО для `doForceStop`-teardown'а. КРИТИЧНО, что
     /// его НЕ отменяет `onDestroy`: `doForceStop` вызывает `stopSelf()` → onDestroy
@@ -786,9 +788,27 @@ class BoxService(
         Log.d(TAG, "[vpn] setStatus(${newStatus.name})${if (error != null) " error=$error" else ""} — sendBroadcast")
         status = newStatus
         BoxVpnService.setCurrentStatus(newStatus, revoked)
-        // §428 — туннель поднялся: окно sticky-рестартов закрыто.
-        if (newStatus == VpnStatus.Started) {
-            BootReceiver.resetStickyRestarts(service.applicationContext)
+        // §428 — туннель поднялся: окно sticky-рестартов закрыто, туннель
+        // «желателен», сторож взведён. Stopped (любой явный путь: doStop /
+        // doForceStop / onRevoke / stopAndAlert / exit) — желание снято,
+        // сторож снят. Гибель процесса сюда не приходит — на то и сторож.
+        val appCtx = service.applicationContext
+        when (newStatus) {
+            VpnStatus.Started -> {
+                BootReceiver.resetStickyRestarts(appCtx)
+                BootReceiver.setVpnDesired(appCtx, true)
+                watchdogJob?.cancel()
+                watchdogJob = VpnWatchdog.startTicker(appCtx, serviceScope) {
+                    status == VpnStatus.Started
+                }
+            }
+            VpnStatus.Stopped -> {
+                BootReceiver.setVpnDesired(appCtx, false)
+                watchdogJob?.cancel()
+                watchdogJob = null
+                VpnWatchdog.disarm(appCtx)
+            }
+            else -> {}
         }
 
         // §276 — revoke НЕ меняет teardown: статус остаётся Stopped, поэтому

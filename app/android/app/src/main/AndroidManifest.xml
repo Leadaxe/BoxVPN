@@ -149,6 +149,14 @@
              тайл / локаль ядра), даже когда Flutter-движок мёртв.
              LOCALE_CHANGED — в exempt-списке implicit-broadcast'ов (API 26+),
              manifest-receiver легален; система шлёт и в non-exported. -->
+        <!-- §428 — сторож туннеля: alarm-таймер «мёртвой руки», поднимает
+             VpnService после гибели процесса (START_STICKY один не спасает —
+             гонка interfaceRemoved/unbind vs binder-death в AMS). Explicit
+             PendingIntent от AlarmManager — non-exported легален. -->
+        <receiver
+            android:name=".vpn.VpnWatchdogReceiver"
+            android:exported="false" />
+
         <receiver
             android:name=".vpn.LocaleChangedReceiver"
             android:exported="false">

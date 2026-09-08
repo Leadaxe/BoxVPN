@@ -37,6 +37,33 @@ class ServiceNotification(private val service: Service) {
                 BoxApplication.notificationManager.createNotificationChannel(channel)
             }
         }
+
+        /// §428 — обычное уведомление на том же канале, живёт после stopSelf()
+        /// и без сервиса (зовётся и из VpnWatchdogReceiver). Без
+        /// POST_NOTIFICATIONS (API 33+) система молча его не покажет — это
+        /// допустимо: сервис в любом случае остановлен, шторм прерван.
+        fun showAlert(ctx: Context, title: String, text: String) {
+            createChannel(ctx)
+            val openIntent = ctx.packageManager.getLaunchIntentForPackage(ctx.packageName)
+            val builder = NotificationCompat.Builder(ctx, CHANNEL_ID)
+                .setSmallIcon(android.R.drawable.ic_lock_lock)
+                .setContentTitle(title)
+                .setContentText(text)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(text))
+                .setAutoCancel(true)
+            if (openIntent != null) {
+                builder.setContentIntent(
+                    PendingIntent.getActivity(
+                        ctx, 0, openIntent,
+                        PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+                    )
+                )
+            }
+            runCatching {
+                (ctx.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                    .notify(ALERT_NOTIFICATION_ID, builder.build())
+            }
+        }
     }
 
     init {
@@ -116,30 +143,7 @@ class ServiceNotification(private val service: Service) {
         }
     }
 
-    /// §428 — обычное уведомление на том же канале, живёт после stopSelf().
-    /// Без POST_NOTIFICATIONS (API 33+) система молча его не покажет — это
-    /// допустимо: сервис в любом случае остановлен, шторм прерван.
-    fun showAlert(title: String, text: String) {
-        val openIntent = service.packageManager
-            .getLaunchIntentForPackage(service.packageName)
-        val builder = NotificationCompat.Builder(service, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_lock_lock)
-            .setContentTitle(title)
-            .setContentText(text)
-            .setStyle(NotificationCompat.BigTextStyle().bigText(text))
-            .setAutoCancel(true)
-        if (openIntent != null) {
-            builder.setContentIntent(
-                PendingIntent.getActivity(
-                    service, 0, openIntent,
-                    PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-                )
-            )
-        }
-        runCatching {
-            BoxApplication.notificationManager.notify(ALERT_NOTIFICATION_ID, builder.build())
-        }
-    }
+    fun showAlert(title: String, text: String) = showAlert(service, title, text)
 
     fun stop() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

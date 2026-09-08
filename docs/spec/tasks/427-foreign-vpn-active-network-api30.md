@@ -2,7 +2,7 @@
 
 | Field | Value |
 |------|----------|
-| Status | Done (код), DEVICE-PENDING: прогон на AVD LxBox_test не сделан |
+| Status | Done, DEVICE-VERIFIED (AVD LxBox_test, API 34, 08.09.2026): VPN LxBox в managed-профиле (uid 1010195, `Uids: {1000000-1099999}` в dumpsys connectivity, виден в allNetworks) → Start в личном профиле без диалога, tun0+tun1 живут одновременно. Android 10 — только по коду |
 | Started | 2026-09-08 |
 | Trigger | [Issue #115](https://github.com/Leadaxe/LxBox/issues/115) (Alex01d, 08.09.2026): VPN из рабочего профиля Shelter ловится как конфликтующий; там же замечание про `getOwnerUid()` на Android 10 |
 | Related | [§211](211-foreign-vpn-switch-dialog.md) (сам диалог «активен другой VPN»), [§224](224-foreign-vpn-revoke-ux.md) (UX отзыва), [§361](361-late-started-status-after-service-destroy.md) (осиротевший tun, ради него добавили проверку `ownerUid`), [§428](428-vpn-service-start-sticky.md) (второй баг из того же issue) |

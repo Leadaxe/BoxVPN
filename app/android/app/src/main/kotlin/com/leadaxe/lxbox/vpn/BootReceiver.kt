@@ -80,6 +80,9 @@ class BootReceiver : BroadcastReceiver() {
         private const val KEY_STICKY_RESTART_COUNT = "sticky_restart_count"
         private const val KEY_STICKY_RESTART_WINDOW_START = "sticky_restart_window_start"
         const val STICKY_RESTART_WINDOW_MS = 5 * 60 * 1000L
+        /// §428 — «туннель желателен»: true с момента Started до явного
+        /// setStatus(Stopped). Читает VpnWatchdogReceiver в свежем процессе.
+        private const val KEY_VPN_DESIRED = "vpn_desired"
         const val STICKY_RESTART_LIMIT = 3
 
         /// Три режима фоновой работы tunnel'а. По умолчанию "never" — максимум
@@ -135,6 +138,16 @@ class BootReceiver : BroadcastReceiver() {
                 .putLong(KEY_STICKY_RESTART_WINDOW_START, if (inWindow) windowStart else now)
                 .apply()
             return count
+        }
+
+        fun setVpnDesired(context: Context, desired: Boolean) {
+            context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                .edit().putBoolean(KEY_VPN_DESIRED, desired).apply()
+        }
+
+        fun isVpnDesired(context: Context): Boolean {
+            return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+                .getBoolean(KEY_VPN_DESIRED, false)
         }
 
         fun resetStickyRestarts(context: Context) {
