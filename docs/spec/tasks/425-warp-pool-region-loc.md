@@ -2,7 +2,7 @@
 
 | Field | Value |
 |------|----------|
-| Status | Implemented (unit-тесты); DEVICE-PENDING: нативный `networkCountry` и плитка App Settings → General → Region на устройстве не проверены |
+| Status | Implemented, device-verified (AVD LxBox_test, 08.09.2026, 2.23.0-dev.13: плитка App Settings → General → Region показывает «Auto · US» — нативный `networkCountry` отдал страну SIM эмулятора; диалог Auto / Not set / RU / Other country code…) |
 | Started | 2026-09-06 |
 | Trigger | Отчёт k-dmitriy (4PDA, 06.09.2026): `deepseek.com` лежит внутри «российского» хвоста `sni_pool` «и в генераторе, и в экспериментальном». Разбор показал, что дело не в порядке: российские домены в пуле полезны только за российским DPI (§143 — ТСПУ режет по несовпадению SNI с блоком), а для юзера в Израиле или ЕС они шум. |
 | Related | [§136](136-warp-quic-i1-generator.md) (WG SNI-пул), [§130](../features/130%20masque-warp-transport/spec.md) (MASQUE SNI-пул), [§305](305-masque-endpoint-h2-pool-and-override.md) (JSON-окно эксперимента, один парсер), [§418](418-warp-api-host-failover.md) (последнее расширение пулов), [§424](424-warp-preset-recommended-mark-leak.md) (первая половина того же отчёта) |
@@ -74,6 +74,5 @@ UI: App Settings → General → блок «Region» → «Usage region». Ди�
 
 ## Не сделано
 
-- Device-verify нативного детекта и плитки.
 - Debug API `GET /device` не отдаёт регион; добавить `warp_region`/`detected`, если
   понадобится для разбора отчётов.
