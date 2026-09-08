@@ -8,8 +8,20 @@
 
 ## [Unreleased]
 
+---
+
+## [2.23.1] — 2026-09-09
+
 ### Added
 
+- **Регион использования — общая настройка приложения ([§425](docs/spec/tasks/425-warp-pool-region-loc.md)).**
+  Плитка App Settings → General → Region рядом с языком: `Auto` (страна сети,
+  иначе локаль), `Not set` или явный код страны. Первый потребитель — пул SNI
+  генератора WARP: в `assets/warp_endpoints.json` появились региональные секции
+  `loc.<cc>`, которые накладываются на корень (Map сливается по ключам, списки
+  заменяются целиком; `{"alias": "xx"}` — ссылка на другую секцию). Российские
+  домены (`yandex.ru`, `gosuslugi.ru`, …) уехали в `loc.ru` — за пределами
+  российского DPI они были шумом; `deepseek.com` остался в корне.
 - **About: все источники установки видны всегда ([§426](docs/spec/tasks/426-install-sources-always-in-about.md)).**
   Карточка «Where to get L×Box» с GitHub, Google Play и F-Droid под блоком
   обновлений; текущий канал помечен. Раньше ссылка на стор появлялась только
@@ -19,6 +31,13 @@
 
 ### Fixed
 
+- **WARP-визард: пометка «(recommended)» больше не утекает в конфиг ([§424](docs/spec/tasks/424-warp-preset-recommended-mark-leak.md)).**
+  Выбор рекомендованного пункта в combobox писал в узел
+  `"server_name": "consumer-masque.cloudflareclient.com (recommended)"`:
+  `DropdownMenu` кладёт в контроллер `entry.label`, а не `value`. Теперь
+  `label` — всегда чистое значение, пометка живёт в `labelWidget`. Затронуты
+  были все три combobox-а с пометкой: MASQUE SNI, MASQUE Endpoint IP, WG
+  endpoint.
 - **Чужой VPN из рабочего профиля больше не считается конфликтующим; краш Start на Android 10 ([§427](docs/spec/tasks/427-foreign-vpn-active-network-api30.md), issue #115).**
   Проверка перед стартом смотрит только дефолтную сеть приложения, а не все
   сети устройства: VPN внутри Shelter / work profile живёт в своём слоте и
@@ -34,6 +53,19 @@
   туннель поднят и в здоровом состоянии не будит телефон. Ручной Stop не
   воскрешается. Предохранитель: не больше двух автоперезапусков за пять
   минут, дальше остановка с уведомлением.
+- **`RECORD_AUDIO` убран из APK.** Разрешение просачивалось в манифест из
+  `camera_android_camerax` (сканер QR); микрофон приложение не использует —
+  снято через `tools:node="remove"`.
+
+### Changed
+
+- **Тулчейн сборки:** Gradle 8.14 → 9.3.1, AGP 8.11.1 → 9.1.0, Kotlin
+  2.2.20 → 2.3.21 (`kotlinOptions` → `compilerOptions`).
+- **Документация:** `docs/FDROID.md` переписан по актуальному состоянию
+  рецепта (два ABI, пины srclib к коммитам, потолок джоба 3 ч, раздел
+  Permissions); пин ядра в `srclibs` на сборку не влияет — prebuild сам
+  делает checkout по `libbox.version`. Добавлена страница
+  `docs/GOOGLE_PLAY.md` про публикацию в Play.
 
 ---
 
