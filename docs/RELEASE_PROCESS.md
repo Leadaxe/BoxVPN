@@ -9,7 +9,7 @@ Related documents:
 - **`AGENTS.md`** — the agent's general scope and the rules for working with git and branches.
 - **`RELEASE_NOTES.md`** — the release body (in the repo root) that CI uploads as `body_path` for the GitHub Release.
 - **`docs/releases/vX.Y.Z.md`** — the archive of per-version release notes.
-- **[`FDROID.md`](FDROID.md)** — publishing on F-Droid: what to do in the catalogue after shipping a release (a separate MR on GitLab; screenshots and descriptions are read from the tag's commit, not from the branch).
+- **[`FDROID.md`](FDROID.md)** — publishing on F-Droid: the catalogue picks up new tags on its own; fastlane (changelogs, screenshots, descriptions) is read from the tag's commit, not from the branch, so it must be in place **before** the tag.
 
 ---
 
@@ -84,6 +84,7 @@ After every release, `main` is merged back into `develop` (§2.6); otherwise the
    - `README.md`, `README.ru.md` — if user-visible features changed.
    - Task specs (`docs/spec/features/NNN*/spec.md`) — `status: released`.
    - `docs/releases/vX.Y.Z.md` — a draft of the per-version archive (it can be prepared as development goes).
+   - `fastlane/metadata/android/{en-US,ru}/changelogs/<versionCode>.txt` — see §2.3 step 4.
 4. **A local smoke test of the release APK** (recommended before tagging):
    ```bash
    scripts/build-local-apk.sh   # release, arm64 only
@@ -163,7 +164,15 @@ Nothing is required — versioning is computed entirely at build time
    `v2.17.0` is the reference for the format. Inside the sections, follow the previous releases: breaking → highlights → tools/process → tests. The Install section and the link to the previous release are shared, outside the spoilers, and duplicated in both languages.
 2. Copy the finished file to `docs/releases/vX.Y.Z.md` (the per-version archive, useful for cross-links from future releases and from specs).
 3. Check that nothing is left over from the previous version: the `# L×Box vX.Y.Z` heading, the number in the `adb install` command, the link at the bottom `Previous release / Предыдущий релиз: [v...](docs/releases/v...md).` And make sure both language sections describe the same set of changes (during edits it is easy to update one and forget the other).
-4. One commit into `develop`:
+4. F-Droid changelogs — `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` and the same under `ru/`, one file per build block (armeabi-v7a and arm64-v8a), ≤ 500 characters each, plain text, one paragraph:
+   ```bash
+   for abi in armeabi-v7a arm64-v8a; do
+     c=$(scripts/version-code.sh X.Y.Z $abi)
+     echo "$c"   # e.g. 22301501 / 22301502
+   done
+   ```
+   F-Droid reads fastlane from the **tag's commit**. A changelog added to `develop` after the tag never reaches the catalogue: v2.23.0 and v2.23.1 show an empty "What's New" for exactly this reason. Count characters with `python3 -c 'print(len(open(f).read()))'`, not `wc -m` (bytes on macOS).
+5. One commit into `develop`:
    ```
    docs(release): vX.Y.Z notes
    ```
