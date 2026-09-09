@@ -84,6 +84,8 @@ class BoxService(
     /// Scoped to service lifetime — all child coroutines are cancelled in onDestroy / doStop.
     /// Recreated on each start since cancel() is terminal for a scope.
     private var serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    /// §428 — тикер сторожа (VpnWatchdog.startTicker) на serviceScope.
+    private var watchdogJob: kotlinx.coroutines.Job? = null
 
     /// §140 — отдельный scope ТОЛЬКО для `doForceStop`-teardown'а. КРИТИЧНО, что
     /// его НЕ отменяет `onDestroy`: `doForceStop` вызывает `stopSelf()` → onDestroy
@@ -261,16 +263,57 @@ class BoxService(
         BoxApplication.initialize(service.applicationContext)
     }
 
+    /// §428 (issue #115) — `START_STICKY` из ОБОИХ выходов (система запоминает
+    /// результат последнего вызова, guard-выход тоже обязан быть sticky).
+    /// Раньше было `START_NOT_STICKY`: OOM/lmkd/OEM-чистилка убивала процесс
+    /// (UI и VPN живут в одном), tun умирал и никто его не поднимал — Always-on
+    /// перезапускает VPN-приложение только на boot/unlock/package-событиях, а
+    /// на смерть процесса лишь вешает «Always-on VPN disconnected». Со sticky
+    /// AMS пересоздаёт сервис сам и зовёт onStartCommand(null): статус в новом
+    /// процессе Stopped, `onCreate` уже поднял `BoxApplication.initialize`,
+    /// старт идёт штатно по persist-конфигу. Явные Stop-пути (doStop /
+    /// doForceStop / onRevoke / stopAndAlert / exit) все заканчиваются
+    /// `stopSelf()` — started-состояние снято, ручную остановку AMS не
+    /// воскрешает.
+    ///
+    /// Предохранитель от шторма: если старт сам валит процесс (Go-паника на
+    /// конфиге, прецедент v2.12.0 force_ipv4×FakeIP), sticky превратил бы один
+    /// краш в цикл «рестарт → краш». null-intent = sticky-рестарт; считаем их
+    /// в prefs, с STICKY_RESTART_LIMIT-го в окне STICKY_RESTART_WINDOW_MS не
+    /// стартуем: уведомление + stopSelf + NOT_STICKY. Успешный `Started`
+    /// сбрасывает счётчик (setStatus). Ручные старты (intent с action) счётчик
+    /// не трогают.
     fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "[vpn] onStartCommand action=${intent?.action} status=${status.name} startId=$startId receiverRegistered=$receiverRegistered")
-        notification.show(
-            ConfigManager.notificationTitle,
-            L10n.str(service, R.string.notification_status_starting),
-        )
+        if (intent == null) {
+            val n = BootReceiver.noteStickyRestart(service)
+            Log.w(TAG, "[vpn §428] sticky restart #$n (limit=${BootReceiver.STICKY_RESTART_LIMIT} per ${BootReceiver.STICKY_RESTART_WINDOW_MS / 1000}s)")
+            if (n >= BootReceiver.STICKY_RESTART_LIMIT) {
+                notification.showAlert(
+                    L10n.str(service, R.string.sticky_restart_storm_title),
+                    L10n.str(service, R.string.sticky_restart_storm_text),
+                )
+                service.stopSelf()
+                return Service.START_NOT_STICKY
+            }
+        }
+        try {
+            notification.show(
+                ConfigManager.notificationTitle,
+                L10n.str(service, R.string.notification_status_starting),
+            )
+        } catch (t: Throwable) {
+            // §428 — на API 31+ startForeground из фона может бросить
+            // ForegroundServiceStartNotAllowedException. Раньше это был краш
+            // процесса; со sticky краш = ещё один рестарт. Останавливаемся тихо.
+            Log.e(TAG, "[vpn §428] startForeground failed — stopSelf", t)
+            service.stopSelf()
+            return Service.START_NOT_STICKY
+        }
 
         if (status != VpnStatus.Stopped) {
             Log.w(TAG, "[vpn] onStartCommand GUARD — status=${status.name} != Stopped, silent return")
-            return Service.START_NOT_STICKY
+            return Service.START_STICKY
         }
         resetScope()
         setStatus(VpnStatus.Starting)
@@ -320,7 +363,7 @@ class BoxService(
                     ?: L10n.str(service, R.string.stop_alert_unknown_error))
             }
         }
-        return Service.START_NOT_STICKY
+        return Service.START_STICKY
     }
 
     fun onDestroy() {
@@ -745,6 +788,28 @@ class BoxService(
         Log.d(TAG, "[vpn] setStatus(${newStatus.name})${if (error != null) " error=$error" else ""} — sendBroadcast")
         status = newStatus
         BoxVpnService.setCurrentStatus(newStatus, revoked)
+        // §428 — туннель поднялся: окно sticky-рестартов закрыто, туннель
+        // «желателен», сторож взведён. Stopped (любой явный путь: doStop /
+        // doForceStop / onRevoke / stopAndAlert / exit) — желание снято,
+        // сторож снят. Гибель процесса сюда не приходит — на то и сторож.
+        val appCtx = service.applicationContext
+        when (newStatus) {
+            VpnStatus.Started -> {
+                BootReceiver.resetStickyRestarts(appCtx)
+                BootReceiver.setVpnDesired(appCtx, true)
+                watchdogJob?.cancel()
+                watchdogJob = VpnWatchdog.startTicker(appCtx, serviceScope) {
+                    status == VpnStatus.Started
+                }
+            }
+            VpnStatus.Stopped -> {
+                BootReceiver.setVpnDesired(appCtx, false)
+                watchdogJob?.cancel()
+                watchdogJob = null
+                VpnWatchdog.disarm(appCtx)
+            }
+            else -> {}
+        }
 
         // §276 — revoke НЕ меняет teardown: статус остаётся Stopped, поэтому
         // stopCompleter разблокируется как обычно (stopVPN/reconnect/force-stop

@@ -21,6 +21,8 @@
 
     <!-- stopAndAlert frames -->
     <string name="stop_alert_unknown_error">Неизвестная ошибка</string>
+    <string name="sticky_restart_storm_title">VPN остановлен</string>
+    <string name="sticky_restart_storm_text">VPN слишком много раз перезапускался после гибели приложения. Запустите вручную.</string>
     <string name="stop_alert_libbox_init_failed">Не удалось инициализировать libbox: %1$s</string>
     <string name="stop_alert_empty_config">Пустая конфигурация</string>
     <string name="stop_alert_no_command_server">CommandServer не инициализирован</string>

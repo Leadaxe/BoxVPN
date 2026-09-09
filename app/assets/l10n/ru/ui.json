@@ -1694,6 +1694,9 @@
   "Drop existing detours — every node connects through this outbound": {
     "value": "Сбросить существующие detour — каждый узел подключается через этот исходящий канал"
   },
+  "Each source signs the app with its own key, so builds from different sources do not install over each other. To switch: back up your settings, uninstall L×Box, install it from the new source and restore the backup.": {
+    "value": "Каждый источник подписывает приложение своим ключом, поэтому сборки из разных источников не ставятся друг поверх друга. Чтобы перейти: сделайте резервную копию настроек, удалите L×Box, установите из нового источника и восстановите копию."
+  },
   "ECH is not applied: \"%s\" from the link points to a public ECH probe, not to this server — enabling it would break the TLS handshake.": {
     "value": "ECH не применён: «%s» из ссылки указывает на публичный ECH-пробник, а не на этот сервер — включение сломало бы TLS-рукопожатие."
   },
@@ -2325,6 +2328,9 @@
   },
   "Installed from %s": {
     "value": "Установлено из %s"
+  },
+  "Installed from here": {
+    "value": "Установлено отсюда"
   },
   "Interrupt connections on switch": {
     "value": "Разрывать соединения при переключении"
@@ -4489,6 +4495,9 @@
   "WebSocket early data \"?ed=%d\" was moved out of the path into a separate field, as the core requires. The node works; the path in the config is not literally the one from the link.": {
     "value": "Ранние данные WebSocket «?ed=%d» перенесены из пути в отдельное поле, как требует ядро. Узел работает, но путь в конфиге отличается от указанного в ссылке."
   },
+  "Where to get L×Box": {
+    "value": "Где взять L×Box"
+  },
   "What goes into this direction": {
     "value": "Что входит в Направление"
   },
@@ -4927,5 +4936,29 @@
   },
   "Config rebuild failed: %s": {
     "value": "Сборка конфига не удалась: %s"
+  },
+  "Auto · %s": {
+    "value": "Auto · %s"
+  },
+  "Usage region": {
+    "value": "Регион использования"
+  },
+  "The country you use the app in. Drives region-specific defaults: today the WARP SNI pool, later routing rule presets. Auto = country of the mobile network, then of the device locale.": {
+    "value": "Страна, в которой вы пользуетесь приложением. Определяет региональные дефолты: сегодня SNI-пул WARP, дальше пресеты правил маршрутизации. Auto = страна мобильной сети, затем локали устройства."
+  },
+  "Not set": {
+    "value": "Не задан"
+  },
+  "Auto · country not detected": {
+    "value": "Auto · страна не определена"
+  },
+  "Other country code…": {
+    "value": "Другой код страны…"
+  },
+  "Country code (2 letters)": {
+    "value": "Код страны (2 буквы)"
+  },
+  "Region": {
+    "value": "Регион"
   }
 }

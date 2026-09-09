@@ -68,6 +68,29 @@ subprojects {
     }
 }
 
+// AGP 9 + `android.builtInKotlin=false`: плагины, которые на AGP ≥ 9 сами
+// НЕ подключают `org.jetbrains.kotlin.android` в расчёте на встроенный Kotlin
+// (file_picker 11.x: `if (!isAgp9OrAbove) apply plugin: ...`), остаются без
+// компилятора Kotlin — их классы не собираются, и `GeneratedPluginRegistrant`
+// падает на `cannot find symbol FilePickerPlugin`. Встроенный Kotlin включить
+// нельзя, пока остальные плагины (camera_android_camerax, device_info_plus,
+// share_plus, …) применяют KGP сами — с ним они конфликтуют. Поэтому KGP
+// таким плагинам подключаем отсюда. Снять, когда включим встроенный Kotlin.
+val pluginsNeedingKgp = setOf("file_picker")
+subprojects {
+    if (name !in pluginsNeedingKgp) return@subprojects
+    plugins.withId("com.android.library") {
+        if (!plugins.hasPlugin("org.jetbrains.kotlin.android")) {
+            plugins.apply("org.jetbrains.kotlin.android")
+            extensions.configure<org.jetbrains.kotlin.gradle.dsl.KotlinAndroidProjectExtension>("kotlin") {
+                compilerOptions {
+                    jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
+                }
+            }
+        }
+    }
+}
+
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
 }

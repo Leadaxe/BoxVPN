@@ -96,6 +96,23 @@ void main() {
     });
   });
 
+  group('pageUrl (§426 — источники в About всегда)', () {
+    test('github → latest, без тега', () {
+      expect(InstallSource.github.pageUrl, ProjectLinks.latestRelease);
+      expect(InstallSource.github.pageUrl, isNot(contains('/tag/')));
+    });
+
+    test('сторы → та же страница приложения, что и updateUrl', () {
+      expect(InstallSource.play.pageUrl, InstallSource.play.updateUrl('v0'));
+      expect(InstallSource.fdroid.pageUrl, InstallSource.fdroid.updateUrl('v0'));
+    });
+
+    test('у каждого источника свой адрес', () {
+      final urls = InstallSource.values.map((s) => s.pageUrl).toSet();
+      expect(urls.length, InstallSource.values.length);
+    });
+  });
+
   group('label', () {
     test('имена каналов', () {
       expect(InstallSource.github.label, 'GitHub');

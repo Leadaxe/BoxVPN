@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import '../services/l10n/locale_controller.dart';
 import '../services/warp/scan/scan_pool.dart';
 import '../services/warp/warp_endpoint_picker.dart';
+import '../services/usage_region.dart';
 
 /// §305 — экран настройки WARP-эксперимента (генератор нод). Вынесен из попапа:
 /// JSON-пул большой, в диалоге тесно. Пользователь задаёт число нод и
@@ -45,9 +46,13 @@ class _WarpExperimentScreenState extends State<WarpExperimentScreen> {
   }
 
   /// §305 — JSON пула → [ScanPool]. null если битый JSON/структура.
-  ScanPool? _parsePool(String raw) {
+  /// §425 — секция `loc.<регион>` из этого же JSON накладывается по той же
+  /// настройке, что и в визарде: юзер правит один формат.
+  Future<ScanPool?> _parsePool(String raw) async {
     try {
-      return ScanPool.fromFullJson(jsonDecode(raw) as Map<String, dynamic>);
+      final region = await UsageRegion.effective();
+      return ScanPool.fromFullJson(jsonDecode(raw) as Map<String, dynamic>,
+          region: region);
     } catch (_) {
       return null;
     }
@@ -58,8 +63,9 @@ class _WarpExperimentScreenState extends State<WarpExperimentScreen> {
     if (mounted) setState(() => _jsonCtl.text = raw);
   }
 
-  void _create() {
-    final pool = _parsePool(_jsonCtl.text);
+  Future<void> _create() async {
+    final pool = await _parsePool(_jsonCtl.text);
+    if (!mounted) return;
     if (pool == null) {
       setState(() => _error =
           getLocalText.s("Invalid pool JSON — check the structure."));

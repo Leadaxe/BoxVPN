@@ -1,4 +1,5 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
@@ -11,6 +12,11 @@
         android:minSdkVersion="34" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <!-- Per-app routing (Tunnel apps): список установленных приложений через
+         `PackageManager.getInstalledApplications()` в VpnPlugin. С Android 11
+         (API 30) без QUERY_ALL_PACKAGES система отдаёт только пакеты из
+         `<queries>` и системные — список для выбора был бы почти пустым.
+         Runtime-запроса нет, разрешение install-time. -->
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
 
@@ -26,6 +32,10 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+    <!-- ACCESS_BACKGROUND_LOCATION приложение НЕ запрашивает само — только
+         объявляет: система выдаёт его вручную через Settings, и лишь тем, кто
+         пользуется wifi_ssid/wifi_bssid-правилами. Без него всё остальное
+         работает. -->
     <!-- Android 13+ (API 33+): без NEARBY_WIFI_DEVICES `WifiInfo.ssid`
          возвращает "<unknown ssid>" даже если ACCESS_FINE_LOCATION granted.
          Для wifi_ssid/wifi_bssid правил sing-box нужно реальное имя. -->
@@ -51,6 +61,12 @@
          декларирует Android TV как поддерживаемый (best-effort) таргет.
          Там пункт «Scan QR code» прячется по hasCamera(). -->
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- RECORD_AUDIO приезжал из манифеста плагина camera_android_camerax
+         (зависимость `camera` ← flutter_zxing): он объявляет микрофон для
+         записи видео со звуком. Мы только читаем кадры для QR — записи нет,
+         разрешение мёртвое. Убираем из итогового APK на этапе merge
+         (заметил рецензент F-Droid при тесте MR 44731). -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" tools:node="remove" />
     <uses-feature
         android:name="android.hardware.camera"
         android:required="false" />
@@ -133,6 +149,14 @@
              тайл / локаль ядра), даже когда Flutter-движок мёртв.
              LOCALE_CHANGED — в exempt-списке implicit-broadcast'ов (API 26+),
              manifest-receiver легален; система шлёт и в non-exported. -->
+        <!-- §428 — сторож туннеля: alarm-таймер «мёртвой руки», поднимает
+             VpnService после гибели процесса (START_STICKY один не спасает —
+             гонка interfaceRemoved/unbind vs binder-death в AMS). Explicit
+             PendingIntent от AlarmManager — non-exported легален. -->
+        <receiver
+            android:name=".vpn.VpnWatchdogReceiver"
+            android:exported="false" />
+
         <receiver
             android:name=".vpn.LocaleChangedReceiver"
             android:exported="false">

@@ -225,12 +225,7 @@ class _WarpWizardScreenState extends State<WarpWizardScreen> with SnackHelper {
   /// чьё значение равно ЯВНОМУ recommended-ключу asset'а (recommended_endpoint /
   /// recommended_host) — на любой позиции. Пустой [recommended] → без пометок.
   DropdownMenuEntry<String> _presetEntry(String value, String recommended) =>
-      DropdownMenuEntry(
-        value: value,
-        label: value == recommended
-            ? '$value ${getLocalText.s("(recommended)")}'
-            : value,
-      );
+      warpPresetEntry(value, recommended, getLocalText.s("(recommended)"));
 
   /// true если в поле endpoint — дефолт/пусто/наш авто-рандом (не вписан юзером
   /// вручную → можно перезаписать).
@@ -1136,3 +1131,18 @@ class _StatusCard extends StatelessWidget {
       );
 }
 
+/// §424 — пункт combobox-пресетов визарда WARP. `label` ВСЕГДА равен чистому
+/// значению: [DropdownMenu] при выборе пункта пишет в контроллер именно
+/// `entry.label`, и любая пометка в нём утекала бы в конфиг
+/// (`"server_name": "consumer-masque.cloudflareclient.com (recommended)"`).
+/// Пометка живёт только в [DropdownMenuEntry.labelWidget] — виден в меню,
+/// в поле не попадает. [mark] — уже локализованная строка «(recommended)».
+DropdownMenuEntry<String> warpPresetEntry(
+    String value, String recommended, String mark) {
+  final marked = recommended.isNotEmpty && value == recommended;
+  return DropdownMenuEntry(
+    value: value,
+    label: value,
+    labelWidget: marked ? Text('$value $mark') : null,
+  );
+}

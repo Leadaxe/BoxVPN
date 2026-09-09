@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
 import com.leadaxe.lxbox.vpn.BootReceiver
@@ -117,6 +118,11 @@ class MainActivity : FlutterActivity() {
                         } else {
                             result.error("INVALID_URL", "URL is null", null)
                         }
+                    }
+                    "networkCountry" -> {
+                        // §425 — страна текущей сети (MCC оператора), затем
+                        // страна SIM; null без телефонии (Wi-Fi-only, TV).
+                        result.success(networkCountryIso())
                     }
                     "installSource" -> {
                         // §390 — package name установщика (сырой; маппинг в
@@ -449,6 +455,18 @@ class MainActivity : FlutterActivity() {
     ///
     /// minSdk проекта — 24, поэтому ветка с deprecated API обязательна:
     /// `getInstallSourceInfo` появился только в API 30.
+    /// §425 — ISO-код страны сети в нижнем регистре. Разрешения не нужны:
+    /// networkCountryIso/simCountryIso открыты любому приложению.
+    private fun networkCountryIso(): String? = try {
+        val tm = getSystemService(TELEPHONY_SERVICE) as? TelephonyManager
+        val net = tm?.networkCountryIso?.takeIf { it.length == 2 }
+        val sim = tm?.simCountryIso?.takeIf { it.length == 2 }
+        (net ?: sim)?.lowercase()
+    } catch (e: Throwable) {
+        Log.w("MainActivity", "networkCountryIso failed", e)
+        null
+    }
+
     private fun installerPackageName(): String? = try {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             packageManager.getInstallSourceInfo(packageName).installingPackageName

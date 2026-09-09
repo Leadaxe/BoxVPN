@@ -179,8 +179,14 @@ class ScanPool {
   /// Парс полной структуры файла (`{wireguard:{...}, masque:{...}}`). Возвращает
   /// null, если структура битая/пустая (caller прячет генератор). Один парсер и
   /// для bundled asset, и для JSON-override окна эксперимента (§305).
-  static ScanPool? fromFullJson(Map<String, dynamic>? json) {
+  ///
+  /// §425 — [region]: код страны (нижний регистр); секция `loc.<region>`
+  /// накладывается поверх корня через [applyRegion]. Пусто/неизвестный код →
+  /// корень как есть.
+  static ScanPool? fromFullJson(Map<String, dynamic>? json,
+      {String region = ''}) {
     if (json == null) return null;
+    if (region.isNotEmpty) json = applyRegion(json, region);
     final wg = (json['wireguard'] as Map?)?.cast<String, dynamic>() ?? const {};
     final mq = (json['masque'] as Map?)?.cast<String, dynamic>() ?? const {};
     final api = (json['api'] as Map?)?.cast<String, dynamic>() ?? const {};
@@ -246,6 +252,61 @@ class ScanPool {
           .toList(),
     );
     return pool.hasData ? pool : null;
+  }
+
+  /// §425 — ключ региональной секции asset'а.
+  static const locKey = 'loc';
+
+  /// §425 — коды регионов, объявленные в `loc` (включая alias-секции), в
+  /// порядке файла. Для меню настроек.
+  static List<String> regionsOf(Map<String, dynamic>? json) {
+    final loc = json?[locKey];
+    if (loc is! Map) return const [];
+    return [
+      for (final e in loc.entries)
+        if (e.value is Map) e.key.toLowerCase(),
+    ];
+  }
+
+  /// §425 — корень asset'а с наложенной секцией `loc.<region>`.
+  ///
+  /// Правила: Map сливается рекурсивно по ключам; всё остальное (списки,
+  /// строки, числа) заменяется целиком — иначе «убрать домен для региона»
+  /// невозможно. Секция вида `{"alias": "ru"}` ссылается на другую секцию
+  /// (один переход, без цепочек). Неизвестный регион / нет `loc` → корень
+  /// без изменений. Сам ключ `loc` из результата снимается.
+  static Map<String, dynamic> applyRegion(
+      Map<String, dynamic> json, String region) {
+    final loc = json[locKey];
+    final base = Map<String, dynamic>.from(json)..remove(locKey);
+    if (loc is! Map) return base;
+    // Секция с чужим типом (строка, список) — как отсутствующая: JSON правит
+    // человек, ронять парсер из-за опечатки нельзя.
+    Map<String, dynamic>? section(Object? v) =>
+        v is Map ? v.cast<String, dynamic>() : null;
+    var sec = section(loc[region.toLowerCase()]);
+    final alias = sec?['alias'];
+    if (alias is String) sec = section(loc[alias.toLowerCase()]);
+    if (sec == null) return base;
+    return deepMerge(base, sec);
+  }
+
+  /// Рекурсивное слияние Map: ключи [over] побеждают; вложенные Map сливаются,
+  /// остальные значения заменяются целиком.
+  static Map<String, dynamic> deepMerge(
+      Map<String, dynamic> base, Map<String, dynamic> over) {
+    final out = Map<String, dynamic>.from(base);
+    for (final e in over.entries) {
+      final b = out[e.key];
+      final o = e.value;
+      if (b is Map && o is Map) {
+        out[e.key] = deepMerge(
+            b.cast<String, dynamic>(), o.cast<String, dynamic>());
+      } else {
+        out[e.key] = o;
+      }
+    }
+    return out;
   }
 }
 

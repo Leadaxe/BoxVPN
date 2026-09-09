@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:flutter/services.dart' show rootBundle;
 
 import 'scan/scan_pool.dart';
+import '../usage_region.dart';
 
 /// §136/§305 — рандом WARP-endpoint из зашитых Cloudflare-блоков. **БЕЗ пробы.**
 ///
@@ -24,19 +25,36 @@ class WarpEndpointPicker {
   final ScanPool? _scan;
 
   static WarpEndpointPicker? _cached;
+  static String? _cachedRegion;
 
   /// Загружает asset один раз (кэш). При ошибке — пул null (caller проверяет
   /// [hasData] / fallback на дефолтный endpoint).
-  static Future<WarpEndpointPicker> load() async {
-    if (_cached != null) return _cached!;
+  ///
+  /// §425 — [region]: код страны для секции `loc.<cc>`; null → эффективный
+  /// регион из настройки ([UsageRegion.effective]). Кэш привязан к региону:
+  /// смена настройки → следующий load перечитывает.
+  static Future<WarpEndpointPicker> load({String? region}) async {
+    final r = region ?? await UsageRegion.effective();
+    if (_cached != null && _cachedRegion == r) return _cached!;
     try {
       final raw = await rootBundle.loadString(_assetPath);
       final json = jsonDecode(raw) as Map<String, dynamic>;
-      _cached = WarpEndpointPicker._(ScanPool.fromFullJson(json));
+      _cached = WarpEndpointPicker._(ScanPool.fromFullJson(json, region: r));
     } catch (_) {
       _cached = WarpEndpointPicker._(null);
     }
+    _cachedRegion = r;
     return _cached!;
+  }
+
+  /// §425 — регионы, объявленные в asset'е (`loc`), для меню настроек.
+  static Future<List<String>> availableRegions() async {
+    try {
+      final raw = await rootBundle.loadString(_assetPath);
+      return ScanPool.regionsOf(jsonDecode(raw) as Map<String, dynamic>);
+    } catch (_) {
+      return const [];
+    }
   }
 
   bool get hasData => _scan?.hasData ?? false;
@@ -150,6 +168,9 @@ class WarpEndpointPicker {
     }
   }
 
-  /// Для тестов — сброс кэша.
-  static void resetForTest() => _cached = null;
+  /// Сброс кэша (тесты; смена региона через настройку перечитывает сама).
+  static void resetForTest() {
+    _cached = null;
+    _cachedRegion = null;
+  }
 }

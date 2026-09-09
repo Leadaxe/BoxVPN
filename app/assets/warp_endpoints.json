@@ -79,5 +79,26 @@
       "beeline.ru", "mail.ru", "max.ru", "pochta.ru", "profi.ru", 
       "psbank.ru", "rt.ru", "rutube.ru", "sberbank.ru", "vk.ru"
     ]
+  },
+  "loc": {
+    "ru": {
+      "wireguard": {
+        "sni_pool": [
+          "yandex.ru", "telemost.yandex.ru", "ozon.ru", "rutube.ru", "gosuslugi.ru",
+          "mail.ru", "max.ru", "vk.ru", "www.google.com", "www.microsoft.com",
+          "www.bing.com", "www.apple.com", "www.wikipedia.org", "cdn.jsdelivr.net",
+          "aws.amazon.com", "deepseek.com"
+        ]
+      },
+      "masque": {
+        "sni_pool": [
+          "consumer-masque.cloudflareclient.com", "www.cloudflare.com", "yandex.ru",
+          "telemost.yandex.ru", "ozon.ru", "rutube.ru", "gosuslugi.ru", "mail.ru",
+          "max.ru", "vk.ru", "www.google.com", "www.microsoft.com", "www.bing.com",
+          "www.apple.com", "www.wikipedia.org", "cdn.jsdelivr.net", "aws.amazon.com",
+          "deepseek.com"
+        ]
+      }
+    }
   }
 }

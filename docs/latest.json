@@ -1,15 +1,15 @@
 {
   "$schema": "https://github.com/Leadaxe/LxBox/blob/main/docs/latest.json",
-  "tag": "v2.23.0",
-  "name": "L×Box v2.23.0",
-  "published_at": "2026-09-06T13:59:31Z",
-  "html_url": "https://github.com/Leadaxe/LxBox/releases/tag/v2.23.0",
-  "apk_url": "https://github.com/Leadaxe/LxBox/releases/download/v2.23.0/LxBox-v2.23.0-universal.apk",
+  "tag": "v2.23.1",
+  "name": "L×Box v2.23.1",
+  "published_at": "2026-09-08T21:56:41Z",
+  "html_url": "https://github.com/Leadaxe/LxBox/releases/tag/v2.23.1",
+  "apk_url": "https://github.com/Leadaxe/LxBox/releases/download/v2.23.1/LxBox-v2.23.1-universal.apk",
   "apk_urls": {
-    "arm64-v8a":   "https://github.com/Leadaxe/LxBox/releases/download/v2.23.0/LxBox-v2.23.0-arm64-v8a.apk",
-    "armeabi-v7a": "https://github.com/Leadaxe/LxBox/releases/download/v2.23.0/LxBox-v2.23.0-armeabi-v7a.apk",
-    "x86_64":      "https://github.com/Leadaxe/LxBox/releases/download/v2.23.0/LxBox-v2.23.0-x86_64.apk",
-    "universal":   "https://github.com/Leadaxe/LxBox/releases/download/v2.23.0/LxBox-v2.23.0-universal.apk"
+    "arm64-v8a":   "https://github.com/Leadaxe/LxBox/releases/download/v2.23.1/LxBox-v2.23.1-arm64-v8a.apk",
+    "armeabi-v7a": "https://github.com/Leadaxe/LxBox/releases/download/v2.23.1/LxBox-v2.23.1-armeabi-v7a.apk",
+    "x86_64":      "https://github.com/Leadaxe/LxBox/releases/download/v2.23.1/LxBox-v2.23.1-x86_64.apk",
+    "universal":   "https://github.com/Leadaxe/LxBox/releases/download/v2.23.1/LxBox-v2.23.1-universal.apk"
   },
   "min_supported": "1.0.0",
   "_comment": "Updated automatically by CI on every release tag push (see .github/workflows/ci.yml). Used by UpdateChecker as a fallback when api.github.com is rate-limited. apk_url = universal fallback (works on any ABI). apk_urls.<abi> = per-architecture optimized variants."

@@ -2,7 +2,7 @@ name: lxbox
 description: L×Box — Android VPN client (sing-box / libbox CommandClient).
 publish_to: 'none'
 
-version: 2.23.0+22300500
+version: 2.23.1+22301500
 # ↑ ФИКСИРОВАННЫЙ placeholder. НЕ редактируется вручную и НЕ бампится в git.
 # Реальная версия вычисляется из git-состояния В МОМЕНТ СБОРКИ и переписывает
 # эту строку прямо перед `flutter build` (файл в репо остаётся 0.0.0+1):

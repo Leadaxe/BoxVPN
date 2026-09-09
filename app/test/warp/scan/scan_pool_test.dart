@@ -301,4 +301,65 @@ void main() {
       expect(pool!.apiHosts, isEmpty);
     });
   });
+
+  group('§425 loc-регионы', () {
+    final json = <String, dynamic>{
+      'wireguard': {
+        'v4_cidr': ['162.159.192.0/24'],
+        'ports': [2408],
+        'sni_pool': ['a', 'b'],
+      },
+      'masque': {
+        'v4_cidr': ['162.159.198.0/24'],
+        'sni_pool': ['m'],
+        'recommended_sni': 'm',
+      },
+      'loc': {
+        'ru': {
+          'wireguard': {'sni_pool': ['x']},
+        },
+        'by': {'alias': 'ru'},
+        'broken': 'not-a-map',
+      },
+    };
+
+    test('regionsOf — ключи loc, только Map-секции', () {
+      expect(ScanPool.regionsOf(json), ['ru', 'by']);
+      expect(ScanPool.regionsOf({'wireguard': {}}), isEmpty);
+      expect(ScanPool.regionsOf(null), isEmpty);
+    });
+
+    test('override по ключу; не переопределённое — из корня; список целиком',
+        () {
+      final ru = ScanPool.fromFullJson(json, region: 'ru')!;
+      expect(ru.wgSniPool, ['x']);
+      expect(ru.wgPorts, [2408]);
+      expect(ru.masqueSniPool, ['m']);
+      expect(ru.masqueRecommendedSni, 'm');
+    });
+
+    test('alias — один переход на другую секцию', () {
+      expect(ScanPool.fromFullJson(json, region: 'by')!.wgSniPool, ['x']);
+    });
+
+    test('пустой/неизвестный/битый регион = корень; регистр не важен', () {
+      expect(ScanPool.fromFullJson(json)!.wgSniPool, ['a', 'b']);
+      expect(ScanPool.fromFullJson(json, region: 'zz')!.wgSniPool, ['a', 'b']);
+      expect(ScanPool.fromFullJson(json, region: 'broken')!.wgSniPool,
+          ['a', 'b']);
+      expect(ScanPool.fromFullJson(json, region: 'RU')!.wgSniPool, ['x']);
+    });
+
+    test('asset без loc парсится как раньше', () {
+      final noLoc = Map<String, dynamic>.from(json)..remove('loc');
+      expect(ScanPool.fromFullJson(noLoc, region: 'ru')!.wgSniPool, ['a', 'b']);
+    });
+
+    test('applyRegion снимает ключ loc и не трогает исходник', () {
+      final out = ScanPool.applyRegion(json, 'ru');
+      expect(out.containsKey('loc'), isFalse);
+      expect((out['wireguard'] as Map)['sni_pool'], ['x']);
+      expect((json['wireguard'] as Map)['sni_pool'], ['a', 'b']);
+    });
+  });
 }

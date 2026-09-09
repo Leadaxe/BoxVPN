@@ -413,8 +413,8 @@ save → reparse, so it would be lost. Fixed in v1.3.1.
 |------------|--------|-----|----------------|
 | sing-box-lx (fork, libbox) | see `app/android/libbox.version` | the pin in `app/android/libbox.version` plus `libs/libbox.aar` (downloaded from the fork's GH Releases by `scripts/fetch-libbox.sh`); the Maven/JitPack line is gone | The API can change — test the native code. The gotchas of a version bump are in [`KERNEL.md`](KERNEL.md) |
 | Flutter | see `app/android/flutter.version` (3.47.1 today) | the SDK; CI reads the pin file | Usually safe; watch for deprecations |
-| Gradle | 8.14 | wrapper | Compatibility with AGP |
-| AGP | 8.11.1 | settings.gradle.kts | Compatibility with Gradle and Flutter |
+| Gradle | 9.3.1 | wrapper | Compatibility with AGP |
+| AGP | 9.1.0 | settings.gradle.kts | Compatibility with Gradle and Flutter |
 | Java | 17 | Temurin | Do not change without a reason |
 
 ### When updating libbox

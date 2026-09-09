@@ -12,6 +12,8 @@ import '../services/settings_storage.dart';
 import '../services/subscription/subscription_identity.dart';
 import '../services/subscription/user_agent.dart';
 import '../services/url_launcher.dart' as ul;
+import '../services/usage_region.dart';
+import '../services/warp/warp_endpoint_picker.dart';
 import '../services/wifi_history_listener.dart';
 import '../widgets/wifi_permission_dialog.dart';
 import '../vpn/box_vpn_client.dart';
@@ -86,6 +88,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with WidgetsBindi
   String _deviceOs = '';
   String _verOs = '';
   String _deviceModel = '';
+  // §425 — регион использования + автоопределённая страна.
+  String _region = SettingsStorage.regionAuto;
+  String _detectedRegion = '';
 
   @override
   void initState() {
@@ -171,8 +176,12 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with WidgetsBindi
         await SettingsStorage.getVar(SubscriptionIdentity.varVerOs, '');
     final deviceModel =
         await SettingsStorage.getVar(SubscriptionIdentity.varDeviceModel, '');
+    final region = await SettingsStorage.getRegion();
+    final detectedRegion = await UsageRegion.detected();
     if (mounted) {
       setState(() {
+        _region = region;
+        _detectedRegion = detectedRegion;
         _userAgent = userAgent;
         _sendHwid = sendHwid;
         _hwid = hwid;
@@ -683,7 +692,86 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> with WidgetsBindi
       onOpenBackup: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => const BackupScreen()),
       ),
+      region: _region,
+      detectedRegion: _detectedRegion,
+      onEditRegion: () => unawaited(_editRegion()),
     );
+  }
+
+  /// §425 — выбор региона использования: auto / none / известные регионы
+  /// (сегодня — ключи `loc` пула WARP) / произвольный код страны.
+  Future<void> _editRegion() async {
+    const other = '__other__';
+    final known = await WarpEndpointPicker.availableRegions();
+    if (!mounted) return;
+    final options = [
+      SettingsStorage.regionAuto,
+      SettingsStorage.regionNone,
+      ...known,
+      // Явно выбранный код вне известного списка — показать, не терять.
+      if (_region != SettingsStorage.regionAuto &&
+          _region != SettingsStorage.regionNone &&
+          !known.contains(_region))
+        _region,
+    ];
+    var picked = await showDialog<String>(
+      context: context,
+      builder: (ctx) => SimpleDialog(
+        title: Text(getLocalText.s("Usage region")),
+        children: [
+          for (final o in options)
+            RadioListTile<String>(
+              value: o,
+              // ignore: deprecated_member_use
+              groupValue: _region,
+              title: Text(GeneralTab.regionLabel(o, _detectedRegion)),
+              // ignore: deprecated_member_use
+              onChanged: (v) => Navigator.of(ctx).pop(v),
+            ),
+          ListTile(
+            leading: const Icon(Icons.edit_outlined),
+            title: Text(getLocalText.s("Other country code…")),
+            onTap: () => Navigator.of(ctx).pop(other),
+          ),
+        ],
+      ),
+    );
+    if (picked == other && mounted) {
+      final ctl = TextEditingController(
+          text: options.contains(_region) ? '' : _region.toUpperCase());
+      picked = await showDialog<String>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: Text(getLocalText.s("Country code (2 letters)")),
+          content: TextField(
+            controller: ctl,
+            autofocus: true,
+            maxLength: 2,
+            textCapitalization: TextCapitalization.characters,
+            decoration: const InputDecoration(hintText: 'IL'), // l10n-exempt
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(),
+              child: Text(getLocalText.s("Cancel")),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(ctl.text),
+              child: Text(getLocalText.s("Save")),
+            ),
+          ],
+        ),
+      );
+      if (picked != null &&
+          SettingsStorage.normalizeRegion(picked) ==
+              SettingsStorage.regionAuto) {
+        picked = null; // мусор вместо кода — не сохраняем
+      }
+    }
+    if (picked == null || !mounted) return;
+    final norm = SettingsStorage.normalizeRegion(picked);
+    setState(() => _region = norm);
+    await SettingsStorage.setRegion(norm);
   }
 
   Widget _buildDiagnosticsTab(BuildContext context) {

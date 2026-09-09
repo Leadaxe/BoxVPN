@@ -42,6 +42,7 @@ hand”. Both describe the same operations from opposite sides.
 | [BUILD.md](BUILD.md) | flutter build commands, CI, signing, the local-build marker |
 | [RELEASE_PROCESS.md](RELEASE_PROCESS.md) | Versions, tags, GitHub Releases, post-flight |
 | [FDROID.md](FDROID.md) | Publishing in the F-Droid catalogue: metadata, reproducible builds, the versionCode scheme |
+| [GOOGLE_PLAY.md](GOOGLE_PLAY.md) | Publishing on Google Play: closed testing, IARC rating, per-release steps — and the testers who made the closed test possible |
 | [DIAGNOSTICS.md](DIAGNOSTICS.md) | The on-device diagnostics playbook: Debug API plus CommandClient/profiler endpoints, TCP/DNS analysis, `scripts/lxbox-diag.sh` |
 | [l10n.md](l10n.md) | Localization (§279/§285): natural keys, the dictionary format, adding a language, the checkers |
 | [USER_GUIDE.md](USER_GUIDE.md) · [RU](USER_GUIDE.ru.md) | User guide — how it all works: the stages traffic goes through, directions, chains of hops, detour, DNS, recipes, regex |
