@@ -8,6 +8,7 @@ import '../../../models/node_spec.dart';
 import '../../../models/server_list.dart';
 import '../../../services/l10n/locale_controller.dart';
 import '../../../services/subscription/import_rules.dart';
+import '../../../widgets/safe_bottom.dart';
 
 /// §302 — «Filters» tab: per-subscription import-rules (REPLACE + DISABLE +
 /// ENABLE §332),
@@ -318,7 +319,7 @@ class _SubscriptionFiltersTabState extends State<SubscriptionFiltersTab> {
               : ReorderableListView.builder(
                   // Нижний отступ под FAB больше не нужен — кнопки уехали в
                   // закреплённую панель под списком.
-                  padding: EdgeInsets.zero,
+                  padding: EdgeInsets.zero, // bottom-inset: handled — ниже bottom bar с SafeArea
                   itemCount: rules.length,
                   onReorderItem: _reorder,
                   itemBuilder: (context, i) =>
@@ -582,7 +583,7 @@ class _RuleEditorScreenState extends State<_RuleEditorScreen> {
     final theme = Theme.of(context);
     final isReplace = _action == ImportRuleAction.replace;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16).withSafeBottom(context),
       children: [
         // ─── Условия ───────────────────────────────────────────────────────
         Row(

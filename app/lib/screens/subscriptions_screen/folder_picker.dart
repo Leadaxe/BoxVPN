@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../controllers/subscription_controller.dart';
 import '../../models/server_list.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// §234 — bottom-sheet выбора папки (для «Move to folder…»). Показывает все
 /// папки кроме [excludeId] + пункт «New folder…» (создаёт и сразу выбирает).
@@ -22,7 +23,7 @@ Future<int?> showFolderPicker(
     }
   }
 
-  final chosenId = await showModalBottomSheet<String>(
+  final chosenId = await showAppBottomSheet<String>(
     context: context,
     builder: (ctx) => SafeArea(
       child: Column(

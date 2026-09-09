@@ -138,7 +138,7 @@ class _SupportMessageScreenState extends State<SupportMessageScreen> {
       ),
       body: SafeArea(
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 24), // bottom-inset: handled — SafeArea выше
           children: [
             Text(c.title, style: theme.textTheme.headlineSmall),
             const SizedBox(height: 16),

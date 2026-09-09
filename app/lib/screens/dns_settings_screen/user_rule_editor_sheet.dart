@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../services/error_format.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Bottom-sheet editor for an inline user DNS rule (`kind: inline`).
 ///
@@ -26,11 +27,11 @@ void showUserRuleEditor(
         : '{\n  "rule_set": "geoip-ru",\n  "server": "yandex_doh"\n}',
   );
 
-  showModalBottomSheet(
+  showAppBottomSheet(
     context: context,
     isScrollControlled: true,
     builder: (ctx) => Padding(
-      padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + MediaQuery.of(ctx).viewInsets.bottom),
+      padding: const EdgeInsets.all(16),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,

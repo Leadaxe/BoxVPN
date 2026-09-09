@@ -28,6 +28,7 @@ import '../widgets/probe_badge.dart';
 import '../widgets/reorder_grab_strip.dart';
 import '../services/l10n/locale_controller.dart';
 import '../services/file_import.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 /// §234 — экран папки серверов. Зеркалит SubscriptionDetailScreen: вкладка
 /// членов (per-member toggle, drag-reorder, long-press меню) + Settings
@@ -335,7 +336,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen>
   /// §236 UI-rework — настройки теста (long-press на кнопке, как на главном):
   /// цель пинга (глобальные ping_options) + пороги цветовой шкалы.
   void _showTestSettings() {
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(
@@ -1031,7 +1032,7 @@ class _FolderDetailScreenState extends State<FolderDetailScreen>
   }
 
   void _showMemberMenu(int memberIndex) {
-    showModalBottomSheet<void>(
+    showAppBottomSheet<void>(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(

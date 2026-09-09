@@ -21,6 +21,7 @@ import '../node_list_presenter.dart';
 import 'add_server_cta.dart';
 import 'filter_panel.dart';
 import '../../../services/l10n/locale_controller.dart';
+import '../../../widgets/safe_bottom.dart';
 
 /// §328 — предикат полноэкранного гайда «Add a server».
 ///
@@ -264,7 +265,7 @@ class HomeNodeList extends StatelessWidget {
       // §134 — bottom-spacer ~в одну строку (высота NodeRow=56): последний
       // узел не липнет к нижнему краю / не уезжает под controls-блок, всегда
       // можно доскроллить с запасом.
-      padding: const EdgeInsets.only(bottom: 56),
+      padding: const EdgeInsets.only(bottom: 56).withSafeBottom(context),
       buildDefaultDragHandles: false,
       itemCount: displayList.length,
       onReorderItem: (oldIndex, newIndex) {

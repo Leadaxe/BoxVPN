@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../models/validation.dart';
 import '../../../services/builder/validator.dart' show kMaxDetourCulprits;
 import '../../../services/l10n/locale_controller.dart';
+import '../../../widgets/app_bottom_sheet.dart';
 
 /// §254/§255 — bottom sheet «Routing loop — VPN not started».
 ///
@@ -17,7 +18,7 @@ Future<void> showDetourCycleSheet(
   List<DetourCycle> issues, {
   required void Function(String culpritTag) onCulpritTap,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) => _DetourCycleSheet(issues: issues, onCulpritTap: onCulpritTap),

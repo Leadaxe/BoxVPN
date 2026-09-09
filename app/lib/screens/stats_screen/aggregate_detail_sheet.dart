@@ -10,6 +10,7 @@ import '../per_app_trace_tab/widgets/aggregated_view.dart';
 import '../per_app_trace_tab/widgets/ip_chip.dart';
 import 'traffic_event_detail_sheet.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// §160 — детальный bottom-sheet по одному агрегату (домен или IP).
 ///
@@ -30,7 +31,7 @@ Future<void> showAggregateDetailSheet(
   required String key,
   required void Function(String key) onSearchKey,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) => _AggregateDetailSheet(

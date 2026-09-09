@@ -13,6 +13,7 @@ import '../../services/subscription/input_helpers.dart';
 import 'folder_picker.dart';
 import '../../services/l10n/locale_controller.dart';
 import '../../services/file_import.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Long-press bottom-sheet для записи подписки/сервера. Поведение 1:1 с
 /// прежним `_showContextMenu` — копировать URL, share, update,
@@ -29,7 +30,7 @@ void showEntryContextMenu(
     _showFolderContextMenu(context, index, entry, subController);
     return;
   }
-  showModalBottomSheet(
+  showAppBottomSheet(
     context: context,
     builder: (ctx) => SafeArea(
       child: Column(
@@ -164,7 +165,7 @@ void _showFolderContextMenu(
   SubscriptionController subController,
 ) {
   final folder = entry.list as FolderServers;
-  showModalBottomSheet<void>(
+  showAppBottomSheet<void>(
     context: context,
     builder: (ctx) => SafeArea(
       child: Column(

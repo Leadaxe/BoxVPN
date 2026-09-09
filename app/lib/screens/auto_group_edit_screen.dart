@@ -7,6 +7,7 @@ import '../services/l10n/locale_controller.dart';
 import '../services/parser/uri_utils.dart';
 import '../services/safe_regex.dart';
 import '../services/ui_helpers.dart';
+import '../widgets/safe_bottom.dart';
 
 /// §322 — редактор узла автовыбора внутри папки.
 ///
@@ -276,7 +277,7 @@ class _AutoGroupEditScreenState extends State<AutoGroupEditScreen> {
           ],
         ),
         body: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32).withSafeBottom(context),
           children: [
             TextField(
               controller: _labelCtrl,

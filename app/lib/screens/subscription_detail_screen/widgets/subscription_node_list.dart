@@ -9,6 +9,7 @@ import '../../../widgets/probe_badge.dart';
 import 'node_warning_row.dart';
 import '../node_inspect_screen.dart';
 import '../../../services/l10n/locale_controller.dart';
+import '../../../widgets/app_bottom_sheet.dart';
 
 /// Nodes-tab list: actionable-warning banner + node rows with §283 toggle,
 /// label/tag, protocol + server:port subtitle, inline warning and a
@@ -232,7 +233,7 @@ class SubscriptionNodeList extends StatelessWidget {
     final info = node.rawUri.isNotEmpty
         ? node.rawUri
         : '${node.protocol}://${node.server}:${node.port}';
-    showModalBottomSheet(
+    showAppBottomSheet(
       context: context,
       builder: (ctx) => SafeArea(
         child: Column(

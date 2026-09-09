@@ -5,6 +5,7 @@ import '../../services/traffic_profiler.dart';
 import '../per_app_trace_tab/app_multi_picker.dart';
 import 'profiler_filter.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// §044/new-profiler — фильтр-окно профайлера. Bottom-sheet, паттерн
 /// `home/widgets/filter_panel.dart`: TabBar с amber-точкой на табе с активным
@@ -26,7 +27,7 @@ Future<void> showProfilerFilterSheet(
   Set<String> seenRules = const {},
   Set<String> seenOutbounds = const {},
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
@@ -85,8 +86,7 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
 
   // §230 — какие табы показываем. Protocol всегда; App по флагу; Rule/Outbound
   // — если есть что показать (значения в трафике ИЛИ уже выбранные в фильтре).
-  bool get _showRuleTab =>
-      widget.seenRules.isNotEmpty || f.rules.isNotEmpty;
+  bool get _showRuleTab => widget.seenRules.isNotEmpty || f.rules.isNotEmpty;
   bool get _showOutboundTab =>
       widget.seenOutbounds.isNotEmpty || f.outbounds.isNotEmpty;
 
@@ -127,23 +127,25 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
   }
 
   Widget _dotTab(String label, bool active) => Tab(
-        height: 40,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(label),
-            if (active) ...[
-              const SizedBox(width: 5),
-              Container(
-                width: 7,
-                height: 7,
-                decoration: const BoxDecoration(
-                    color: Colors.amber, shape: BoxShape.circle),
-              ),
-            ],
-          ],
-        ),
-      );
+    height: 40,
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(label),
+        if (active) ...[
+          const SizedBox(width: 5),
+          Container(
+            width: 7,
+            height: 7,
+            decoration: const BoxDecoration(
+              color: Colors.amber,
+              shape: BoxShape.circle,
+            ),
+          ),
+        ],
+      ],
+    ),
+  );
 
   // ── Protocol-таб ──
   Widget _protocolTab() {
@@ -196,18 +198,28 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
             controlAffinity: ListTileControlAffinity.leading,
             dense: true,
             contentPadding: const EdgeInsets.symmetric(horizontal: 4),
-            secondary: Icon(Icons.help_outline,
-                color: Theme.of(context).colorScheme.onSurfaceVariant),
-            title: Text(getLocalText.s("Unattributed (no owner)"),
-                style: const TextStyle(fontSize: 13)),
-            subtitle: Text(getLocalText.s("Events with no owning app"),
-                style: const TextStyle(fontSize: 10)),
+            secondary: Icon(
+              Icons.help_outline,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+            title: Text(
+              getLocalText.s("Unattributed (no owner)"),
+              style: const TextStyle(fontSize: 13),
+            ),
+            subtitle: Text(
+              getLocalText.s("Events with no owning app"),
+              style: const TextStyle(fontSize: 10),
+            ),
           ),
         if (all.isEmpty && !widget.hasUnattributed)
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Text(getLocalText.s("No apps seen yet — traffic will populate this list."),
-                style: const TextStyle(fontSize: 12)),
+            child: Text(
+              getLocalText.s(
+                "No apps seen yet — traffic will populate this list.",
+              ),
+              style: const TextStyle(fontSize: 12),
+            ),
           ),
         for (final pkg in all)
           CheckboxListTile(
@@ -218,8 +230,10 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
             contentPadding: const EdgeInsets.symmetric(horizontal: 4),
             secondary: _appIcon(pkg),
             title: Text(_appLabel(pkg), style: const TextStyle(fontSize: 13)),
-            subtitle: Text(pkg,
-                style: const TextStyle(fontSize: 10, fontFamily: 'monospace')),
+            subtitle: Text(
+              pkg,
+              style: const TextStyle(fontSize: 10, fontFamily: 'monospace'),
+            ),
           ),
       ],
     );
@@ -239,8 +253,12 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
     if (all.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Text(getLocalText.s("No rules seen yet — traffic will populate this list."),
-            style: const TextStyle(fontSize: 12)),
+        child: Text(
+          getLocalText.s(
+            "No rules seen yet — traffic will populate this list.",
+          ),
+          style: const TextStyle(fontSize: 12),
+        ),
       );
     }
     return Padding(
@@ -272,8 +290,12 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
     if (all.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Text(getLocalText.s("No outbounds seen yet — traffic will populate this list."),
-            style: const TextStyle(fontSize: 12)),
+        child: Text(
+          getLocalText.s(
+            "No outbounds seen yet — traffic will populate this list.",
+          ),
+          style: const TextStyle(fontSize: 12),
+        ),
       );
     }
     return Padding(
@@ -302,8 +324,12 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
         if (info?.icon != null) {
           return ClipRRect(
             borderRadius: BorderRadius.circular(6),
-            child: Image.memory(info!.icon!,
-                width: 28, height: 28, gaplessPlayback: true),
+            child: Image.memory(
+              info!.icon!,
+              width: 28,
+              height: 28,
+              gaplessPlayback: true,
+            ),
           );
         }
         final cs = Theme.of(context).colorScheme;
@@ -313,8 +339,10 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
           height: 28,
           child: CircleAvatar(
             backgroundColor: cs.surfaceContainerHighest,
-            child: Text(label.isEmpty ? '?' : label.characters.first.toUpperCase(),
-                style: TextStyle(fontSize: 11, color: cs.onSurface)),
+            child: Text(
+              label.isEmpty ? '?' : label.characters.first.toUpperCase(),
+              style: TextStyle(fontSize: 11, color: cs.onSurface),
+            ),
           ),
         );
       },
@@ -322,14 +350,17 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
   }
 
   Future<void> _openPicker() async {
-    await showModalBottomSheet<void>(
+    await showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (_) => _PickerSheet(filter: f, onPicked: (pkg) {
-        // добавленный пакет показываем в App-табе даже если его не было в seen.
-        setState(() => _extraApps.add(pkg));
-      }),
+      builder: (_) => _PickerSheet(
+        filter: f,
+        onPicked: (pkg) {
+          // добавленный пакет показываем в App-табе даже если его не было в seen.
+          setState(() => _extraApps.add(pkg));
+        },
+      ),
     );
   }
 
@@ -337,89 +368,90 @@ class _ProfilerFilterSheetState extends State<_ProfilerFilterSheet>
   // и состав ДОЛЖНЫ совпадать с длиной _tab (initState): Protocol [· App]
   // [· Rule] [· Outbound]. Условия те же, что в _show*Tab / showAppTab.
   List<(String, bool, Widget Function())> get _tabDefs => [
-        ('Protocol', f.kinds.isNotEmpty, _protocolTab),
-        if (widget.showAppTab) ('App', f.appAxisActive, _appTab),
-        if (_showRuleTab) ('Rule', f.rules.isNotEmpty, _ruleTab),
-        if (_showOutboundTab) ('Outbound', f.outbounds.isNotEmpty, _outboundTab),
-      ];
+    ('Protocol', f.kinds.isNotEmpty, _protocolTab),
+    if (widget.showAppTab) ('App', f.appAxisActive, _appTab),
+    if (_showRuleTab) ('Rule', f.rules.isNotEmpty, _ruleTab),
+    if (_showOutboundTab) ('Outbound', f.outbounds.isNotEmpty, _outboundTab),
+  ];
 
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
-    return Padding(
-      padding: EdgeInsets.only(bottom: mq.viewInsets.bottom),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: mq.size.height * 0.8),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(getLocalText.s("Filter events"),
-                        style: const TextStyle(
-                            fontSize: 16, fontWeight: FontWeight.w600)),
-                  ),
-                  if (f.isActive)
-                    TextButton(
-                      onPressed: f.clearAll,
-                      child: Text(getLocalText.s("Reset all")),
+    return ConstrainedBox(
+      constraints: BoxConstraints(maxHeight: mq.size.height * 0.8),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    getLocalText.s("Filter events"),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                ],
-              ),
-              // §230 — поиск по domain/ip/process (substring). Клик по домену в
-              // детали соединения кладёт значение сюда; юзер видит/правит/чистит.
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: TextField(
-                  controller: _searchCtrl,
-                  onChanged: (v) => f.search = v.trim(),
-                  textInputAction: TextInputAction.search,
-                  decoration: InputDecoration(
-                    isDense: true,
-                    hintText: getLocalText.s("Search domain / IP / app"),
-                    prefixIcon: const Icon(Icons.search, size: 18),
-                    suffixIcon: _searchCtrl.text.isEmpty
-                        ? null
-                        : IconButton(
-                            icon: const Icon(Icons.close, size: 18),
-                            tooltip: getLocalText.s("Clear"),
-                            onPressed: () {
-                              _searchCtrl.clear();
-                              f.search = '';
-                            },
-                          ),
-                    border: const OutlineInputBorder(),
                   ),
                 ),
-              ),
-              TabBar(
-                controller: _tab,
-                isScrollable: true,
-                tabAlignment: TabAlignment.start,
-                tabs: [
-                  for (final (label, active, _) in _tabDefs)
-                    _dotTab(label, active),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Flexible(
-                child: SingleChildScrollView(
-                  child: AnimatedBuilder(
-                    animation: _tab,
-                    builder: (_, _) {
-                      final defs = _tabDefs;
-                      final i = _tab.index.clamp(0, defs.length - 1);
-                      return defs[i].$3();
-                    },
+                if (f.isActive)
+                  TextButton(
+                    onPressed: f.clearAll,
+                    child: Text(getLocalText.s("Reset all")),
                   ),
+              ],
+            ),
+            // §230 — поиск по domain/ip/process (substring). Клик по домену в
+            // детали соединения кладёт значение сюда; юзер видит/правит/чистит.
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: TextField(
+                controller: _searchCtrl,
+                onChanged: (v) => f.search = v.trim(),
+                textInputAction: TextInputAction.search,
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: getLocalText.s("Search domain / IP / app"),
+                  prefixIcon: const Icon(Icons.search, size: 18),
+                  suffixIcon: _searchCtrl.text.isEmpty
+                      ? null
+                      : IconButton(
+                          icon: const Icon(Icons.close, size: 18),
+                          tooltip: getLocalText.s("Clear"),
+                          onPressed: () {
+                            _searchCtrl.clear();
+                            f.search = '';
+                          },
+                        ),
+                  border: const OutlineInputBorder(),
                 ),
               ),
-            ],
-          ),
+            ),
+            TabBar(
+              controller: _tab,
+              isScrollable: true,
+              tabAlignment: TabAlignment.start,
+              tabs: [
+                for (final (label, active, _) in _tabDefs)
+                  _dotTab(label, active),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Flexible(
+              child: SingleChildScrollView(
+                child: AnimatedBuilder(
+                  animation: _tab,
+                  builder: (_, _) {
+                    final defs = _tabDefs;
+                    final i = _tab.index.clamp(0, defs.length - 1);
+                    return defs[i].$3();
+                  },
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -451,9 +483,13 @@ class _PickerSheetState extends State<_PickerSheet> {
           children: [
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
-              child: Text(getLocalText.s("Add app to filter"),
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.w600)),
+              child: Text(
+                getLocalText.s("Add app to filter"),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
             Flexible(
               child: AppMultiPicker(

@@ -15,6 +15,7 @@ import '../services/ui_helpers.dart';
 import '../widgets/emoji_picker_button.dart';
 import '../widgets/lx_code_editor.dart';
 import '../services/l10n/locale_controller.dart';
+import '../widgets/safe_bottom.dart';
 
 // SocksSpec.emit() требует TemplateVars — для wizard-created SOCKS5 без
 // substitution используем пустые. Это match'ит manual UserServer pattern
@@ -324,7 +325,7 @@ class _AddServerWizardScreenState extends State<AddServerWizardScreen>
 
   Widget _buildSocksForm(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32).withSafeBottom(context),
       child: Form(
         key: _socksFormKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,
@@ -408,7 +409,7 @@ class _AddServerWizardScreenState extends State<AddServerWizardScreen>
 
   Widget _buildHttpForm(BuildContext context) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
+      padding: const EdgeInsets.fromLTRB(16, 16, 16, 32).withSafeBottom(context),
       child: Form(
         key: _httpFormKey,
         autovalidateMode: AutovalidateMode.onUserInteraction,

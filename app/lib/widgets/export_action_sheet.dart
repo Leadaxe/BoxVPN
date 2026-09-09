@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/ui_msg.dart';
 import '../services/l10n/locale_controller.dart';
+import 'app_bottom_sheet.dart';
 
 /// §374 — что юзер выбрал в шите экспорта.
 enum ExportAction {
@@ -31,7 +32,7 @@ Future<ExportAction?> showExportActionSheet(
   required bool canSaveToFile,
   required bool canSaveToDownloads,
 }) {
-  return showModalBottomSheet<ExportAction>(
+  return showAppBottomSheet<ExportAction>(
     context: context,
     builder: (ctx) => SafeArea(
       child: Column(

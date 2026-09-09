@@ -7,6 +7,7 @@ import '../../services/profile_dump_writer.dart';
 import '../../services/ui_helpers.dart';
 import '../../vpn/box_vpn_client.dart';
 import '../../vpn/pprof_profile.dart';
+import '../../widgets/safe_bottom.dart';
 
 /// §207 — вкладка «Profiling» на экране Debug: pprof-слепки живого ядра
 /// (goroutines / CPU / heap / allocs) через libbox PProfServer.
@@ -86,7 +87,7 @@ class _ProfilingTabState extends State<ProfilingTab>
     super.build(context);
     final cs = Theme.of(context).colorScheme;
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16).withSafeBottom(context),
       children: [
         Text(
           getLocalText.s("Capture a diagnostic snapshot of the running core and share it. Requires the VPN to be connected."),

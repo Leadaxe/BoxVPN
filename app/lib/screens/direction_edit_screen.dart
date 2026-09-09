@@ -4,6 +4,7 @@ import '../models/direction.dart';
 import '../services/ui_helpers.dart';
 import 'home/filter_widgets.dart' show NegateToggle;
 import '../services/l10n/locale_controller.dart';
+import '../widgets/safe_bottom.dart';
 
 /// §125 — полноэкранный редактор Направления роутинга. Идиома проекта
 /// ([custom_rule_edit_screen.dart], [dns_server_edit_screen.dart]):
@@ -383,7 +384,7 @@ class _DirectionEditScreenState extends State<DirectionEditScreen> {
                     ),
           ),
           child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 32).withSafeBottom(context),
           children: [
             // системный tag (read-only)
             Text(c.tag,

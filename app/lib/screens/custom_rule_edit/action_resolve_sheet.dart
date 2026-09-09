@@ -4,6 +4,7 @@ import '../../models/custom_rule.dart';
 import '../../widgets/outbound_picker.dart';
 import 'edit_controller.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// §247 — модальное окно «Action & Resolve» (за ⚙ рядом с Action-пикером).
 ///
@@ -21,7 +22,7 @@ Future<void> showActionResolveSheet(
   required CustomRuleEditController controller,
   required List<OutboundOption> outboundOptions,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,

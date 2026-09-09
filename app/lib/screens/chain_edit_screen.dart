@@ -32,6 +32,7 @@ import '../widgets/reorder_grab_strip.dart';
 import 'chain_edit/chain_form_validation.dart';
 import 'chain_edit/chain_hop_candidate.dart';
 import 'chain_edit/chain_hop_targets.dart';
+import '../widgets/app_bottom_sheet.dart';
 
 /// Результат редактора: saved (с обновлённой цепочкой) или deleted.
 class ChainEditResult {
@@ -261,7 +262,7 @@ class _ChainEditScreenState extends State<ChainEditScreen> with SnackHelper {
           "Nothing left to add: every available target is already in the chain."));
       return;
     }
-    final picked = await showModalBottomSheet<String>(
+    final picked = await showAppBottomSheet<String>(
       context: context,
       isScrollControlled: true,
       // Кандидатов у живого профиля сотни (все узлы подписок) — без потолка

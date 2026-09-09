@@ -14,6 +14,7 @@ import '../services/error_format.dart';
 import '../services/l10n/locale_controller.dart';
 import '../widgets/lx_code_editor.dart';
 import '../services/file_import.dart';
+import '../widgets/safe_bottom.dart';
 
 /// §333 — страховочный порог: выше него редактор открывается read-only.
 /// Даже построчному редактору многомегабайтный конфиг на слабом устройстве
@@ -200,7 +201,7 @@ class _ConfigScreenState extends State<ConfigScreen> {
             ],
           ),
           body: Padding(
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(12).withSafeBottom(context),
             child: Column(
               children: [
                 if (_readOnly)

@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'safe_bottom.dart';
 
 /// §333 — построчный просмотр большого read-only текста.
 ///
@@ -71,7 +72,7 @@ class _BigTextViewState extends State<BigTextView> {
   Widget build(BuildContext context) {
     return SelectionArea(
       child: ListView.builder(
-        padding: widget.padding,
+        padding: widget.padding.withSafeBottom(context),
         itemCount: _chunks.length,
         itemBuilder: (context, i) => Text(
           // Пустая строка схлопнулась бы в 0-высотный Text — визуально

@@ -10,6 +10,7 @@ import '../services/oom_reports.dart';
 import '../services/oom_share.dart';
 import '../services/ui_helpers.dart';
 import '../widgets/big_text_view.dart';
+import '../widgets/safe_bottom.dart';
 
 /// §318 — вкладка «OOM» на экране Debug: снимки памяти, снятые ядром.
 ///
@@ -303,7 +304,7 @@ class _OomReportViewScreenState extends State<OomReportViewScreen>
                 ),
                 if (_log != null)
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12).withSafeBottom(context),
                     sliver: BigTextSliver(
                       text: _log!,
                       style: const TextStyle(

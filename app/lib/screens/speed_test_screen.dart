@@ -12,6 +12,7 @@ import '../services/format_utils.dart' show formatTimeHm;
 import '../services/l10n/template_aware_state.dart';
 import '../services/template_loader.dart';
 import '../services/l10n/locale_controller.dart';
+import '../widgets/safe_bottom.dart';
 
 class SpeedTestScreen extends StatefulWidget {
   const SpeedTestScreen({super.key, required this.homeController});
@@ -336,7 +337,7 @@ class _SpeedTestScreenState extends State<SpeedTestScreen>
     return Scaffold(
       appBar: AppBar(title: Text(getLocalText.s("Speed Test"))),
       body: ListView(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(24).withSafeBottom(context),
         children: [
           // Proxy indicator
           Container(

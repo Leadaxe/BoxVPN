@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../services/l10n/locale_controller.dart';
+import '../../../widgets/safe_bottom.dart';
 
 /// Onboarding card (night T5-1): вместо голого "No subscriptions yet"
 /// показываем карточку с 3-step start — пользователь сразу видит что
@@ -21,7 +22,7 @@ class SubscriptionsEmptyState extends StatelessWidget {
     final cs = Theme.of(context).colorScheme;
     return ListView(
       physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16).withSafeBottom(context),
       children: [
         Card(
           elevation: 0,

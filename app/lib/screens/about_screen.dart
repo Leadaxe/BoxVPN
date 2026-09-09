@@ -10,6 +10,7 @@ import '../services/url_launcher.dart' as ul;
 import '../services/version_info.dart';
 import '../vpn/box_vpn_client.dart';
 import '../services/l10n/locale_controller.dart';
+import '../widgets/safe_bottom.dart';
 
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key, this.openDonate = false});
@@ -60,7 +61,7 @@ class AboutScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(getLocalText.s("About"))),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16).withSafeBottom(context),
         children: [
           Center(
             child: Column(

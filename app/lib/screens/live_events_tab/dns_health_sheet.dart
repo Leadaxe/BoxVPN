@@ -23,6 +23,7 @@ import '../../services/settings_storage.dart';
 import '../dns_settings_screen.dart';
 import '../routing_screen.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Открыть лист-подсказку (выезжает снизу вверх). Контроллеры нужны для
 /// навигационных кнопок; без них лист чисто информационный.
@@ -31,7 +32,7 @@ Future<void> showDnsHealthSheet(
   SubscriptionController? subController,
   HomeController? homeController,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) => _DnsHealthSheet(

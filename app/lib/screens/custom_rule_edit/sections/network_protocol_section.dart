@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../models/custom_rule.dart'
     show kKnownNetworks, kKnownProtocols;
 import '../../../services/l10n/locale_controller.dart';
+import '../../../widgets/app_bottom_sheet.dart';
 
 /// §240 — NETWORK & PROTOCOL section.
 ///
@@ -30,7 +31,7 @@ class NetworkProtocolSection extends StatelessWidget {
   final VoidCallback onClearAll;
 
   Future<void> _openSheet(BuildContext context) {
-    return showModalBottomSheet<void>(
+    return showAppBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

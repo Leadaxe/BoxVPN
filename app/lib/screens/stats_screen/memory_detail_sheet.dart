@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../../services/format_utils.dart';
 import '../../vpn/box_vpn_client.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// Bottom-sheet с детализацией памяти процесса приложения.
 ///
@@ -21,7 +22,7 @@ Future<void> showMemoryDetailSheet(
   required int connectionsIn,
   required int connectionsOut,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) => _MemoryDetailSheet(

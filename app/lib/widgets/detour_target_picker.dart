@@ -7,6 +7,7 @@ import '../models/server_list.dart';
 import '../services/selector_info.dart';
 import '../services/tag_resolver.dart';
 import '../services/l10n/locale_controller.dart';
+import 'app_bottom_sheet.dart';
 
 /// §239 — выбранная цель detour-пикера.
 class DetourTarget {
@@ -195,7 +196,7 @@ Future<DetourTarget?> showDetourTargetPicker(
   // §248 — detour-Направления (фильтрация — см. [visibleDetourDirections]).
   final detourDirections = visibleDetourDirections(directions, folder);
 
-  return showModalBottomSheet<DetourTarget>(
+  return showAppBottomSheet<DetourTarget>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) {

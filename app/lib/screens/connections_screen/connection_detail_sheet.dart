@@ -7,6 +7,7 @@ import '../../services/format_utils.dart';
 import '../../vpn/cc_channel.dart';
 import '../stats_screen/routing_section.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// §152 — детальный bottom sheet по одному соединению.
 ///
@@ -30,7 +31,7 @@ Future<void> showConnectionDetailSheet(
   bool oneWay = false,
   required void Function(String id) onClose,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) => _ConnectionDetailSheet(

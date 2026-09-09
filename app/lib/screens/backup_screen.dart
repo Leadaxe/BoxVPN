@@ -27,6 +27,7 @@ import '../services/utf8_decode.dart';
 import '../services/file_export.dart';
 import '../services/file_import.dart';
 import '../services/url_launcher.dart';
+import '../widgets/safe_bottom.dart';
 
 
 /// Backup & restore UI — спека [§040](../../docs/spec/features/040 backup
@@ -55,7 +56,7 @@ class _BackupScreenState extends State<BackupScreen> with SnackHelper {
     return Scaffold(
       appBar: AppBar(title: Text(getLocalText.s("Backup & restore"))),
       body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        padding: const EdgeInsets.symmetric(vertical: 8).withSafeBottom(context),
         children: [
           ExportCard(
             serverLists: _expServerLists,

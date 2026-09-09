@@ -94,7 +94,7 @@ class _WarpExperimentScreenState extends State<WarpExperimentScreen> {
               children: [
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(16), // bottom-inset: handled — footer SafeArea ниже
                     children: [
                       Text(
                         getLocalText.s(

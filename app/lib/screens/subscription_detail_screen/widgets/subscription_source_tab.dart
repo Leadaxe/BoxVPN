@@ -5,6 +5,7 @@ import '../../../models/ui_msg.dart';
 
 import '../../../services/l10n/locale_controller.dart';
 import '../../../widgets/big_text_view.dart';
+import '../../../widgets/safe_bottom.dart';
 
 /// Source tab: live HTTP response headers (important + collapsible "others")
 /// and the raw response body. Extracted verbatim from `_buildSourceTab` /
@@ -209,7 +210,7 @@ class SubscriptionSourceTab extends StatelessWidget {
         ),
         if (rawSource.isNotEmpty)
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 12).withSafeBottom(context),
             sliver: BigTextSliver(
               text: rawSource,
               style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),

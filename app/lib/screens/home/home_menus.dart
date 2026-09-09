@@ -5,6 +5,7 @@ import '../../models/home_state.dart';
 import '../../services/settings_storage.dart';
 import '../../services/template_loader.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// §070 — modal bottom sheet опций сортировки нод (long-press по sort-кнопке
 /// в [NodesHeader]). Sheet остаётся открытым — можно тоггнуть несколько опций
@@ -15,7 +16,7 @@ Future<void> showSortOptionsMenu(
   BuildContext context,
   HomeController controller,
 ) async {
-  await showModalBottomSheet<void>(
+  await showAppBottomSheet<void>(
     context: context,
     builder: (sheetCtx) => StatefulBuilder(
       builder: (sheetCtx, setSheetState) {
@@ -131,15 +132,14 @@ Future<void> showPingSettings(
   final urlCtrl = TextEditingController(text: initialUrl);
   final timeoutCtrl = TextEditingController(text: '$initialTimeout');
 
-  await showModalBottomSheet<void>(
+  await showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) => StatefulBuilder(
       builder: (ctx, setSheetState) {
         final canApplyToGroup = currentGroup.isNotEmpty;
         return Padding(
-          padding: EdgeInsets.fromLTRB(
-              16, 16, 16, 16 + MediaQuery.of(ctx).viewInsets.bottom),
+          padding: const EdgeInsets.all(16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,

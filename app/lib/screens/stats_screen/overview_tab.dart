@@ -4,6 +4,7 @@ import '../../services/format_utils.dart';
 import 'memory_detail_sheet.dart';
 import 'overview_models.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/safe_bottom.dart';
 
 /// Overview tab of StatsScreen; receives data via props on each parent refresh.
 /// `_expanded` is local state of this widget.
@@ -60,7 +61,7 @@ class _OverviewTabState extends State<OverviewTab> {
     final sorted = widget.groups.values.toList()
       ..sort((a, b) => (b.upload + b.download).compareTo(a.upload + a.download));
     return ListView(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12).withSafeBottom(context),
       children: [
         Card(
           child: Padding(

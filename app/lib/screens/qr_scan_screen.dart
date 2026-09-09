@@ -55,11 +55,13 @@ class ScanFailed extends ScanOutcome {
 ///
 /// Зеркало `pickProblemText` из file_import.dart.
 String? scanProblemText(ScanOutcome outcome) => switch (outcome) {
-      ScannedCode() || ScanCancelled() => null,
-      ScanDenied() => getLocalText.s("Camera access denied"),
-      ScanFailed(:final error) =>
-        getLocalText.s("Camera error: %s", formatUserError(error).render()),
-    };
+  ScannedCode() || ScanCancelled() => null,
+  ScanDenied() => getLocalText.s("Camera access denied"),
+  ScanFailed(:final error) => getLocalText.s(
+    "Camera error: %s",
+    formatUserError(error).render(),
+  ),
+};
 
 /// Полноэкранный сканер. Возвращает [ScanOutcome] через `Navigator.pop`.
 ///
@@ -118,9 +120,11 @@ class _QrScanScreenState extends State<QrScanScreen> {
     if (error == null || _handled) return;
     final code = error is CameraException ? error.code : null;
     AppLog.I.warning('[qr] scanner error: ${code ?? error}');
-    _finish(code != null && _isPermissionDenied(code)
-        ? const ScanDenied()
-        : ScanFailed(error));
+    _finish(
+      code != null && _isPermissionDenied(code)
+          ? const ScanDenied()
+          : ScanFailed(error),
+    );
   }
 
   @override
@@ -171,34 +175,38 @@ class _QrScanScreenState extends State<QrScanScreen> {
           // Подсказка поверх превью — юзер видит, что от него хотят.
           Align(
             alignment: Alignment.bottomCenter,
-            child: Container(
-              width: double.infinity,
-              color: Colors.black54,
-              padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  // Моргает на каждой попытке декодирования: видно, что сканер
-                  // работает, даже пока код не пойман.
-                  Container(
-                    width: 8,
-                    height: 8,
-                    margin: const EdgeInsets.only(right: 10),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _attempts.isEven
-                          ? Colors.white
-                          : Colors.white24,
+            child: SafeArea(
+              top: false,
+              child: Container(
+                width: double.infinity,
+                color: Colors.black54,
+                padding: const EdgeInsets.symmetric(
+                  vertical: 16,
+                  horizontal: 24,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Моргает на каждой попытке декодирования: видно, что сканер
+                    // работает, даже пока код не пойман.
+                    Container(
+                      width: 8,
+                      height: 8,
+                      margin: const EdgeInsets.only(right: 10),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: _attempts.isEven ? Colors.white : Colors.white24,
+                      ),
                     ),
-                  ),
-                  Flexible(
-                    child: Text(
-                      getLocalText.s("Point the camera at a QR code"),
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(color: Colors.white),
+                    Flexible(
+                      child: Text(
+                        getLocalText.s("Point the camera at a QR code"),
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(color: Colors.white),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -14,6 +14,7 @@ import '../services/settings_storage.dart';
 import 'folder_detail_screen.dart';
 import 'warp_experiment_screen.dart';
 import '../services/l10n/locale_controller.dart';
+import '../widgets/safe_bottom.dart';
 
 /// §025 — Full-screen визард «Get WARP». Открывается из overflow-меню
 /// Subscriptions. Один тап «Register» для free; license/endpoint опциональны
@@ -429,7 +430,7 @@ class _WarpWizardScreenState extends State<WarpWizardScreen> with SnackHelper {
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(16, 24, 16, 32),
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 32).withSafeBottom(context),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [

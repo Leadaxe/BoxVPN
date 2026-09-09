@@ -9,6 +9,7 @@ import '../../services/traffic_profiler.dart';
 import '../../services/process_name.dart';
 import 'routing_section.dart';
 import '../../services/l10n/locale_controller.dart';
+import '../../widgets/app_bottom_sheet.dart';
 
 /// §160 — детальный bottom-sheet по одному [TrafficEvent] (Live-лента
 /// per-app trace, в перспективе — и Stats→Live).
@@ -24,7 +25,7 @@ Future<void> showTrafficEventDetailSheet(
   TrafficEvent event, {
   required void Function(String key) onSearchKey,
 }) {
-  return showModalBottomSheet<void>(
+  return showAppBottomSheet<void>(
     context: context,
     isScrollControlled: true,
     builder: (ctx) =>

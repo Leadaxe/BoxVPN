@@ -9,6 +9,7 @@ import '../../../widgets/detour_target_picker.dart' show detourDirectionDisplay;
 import '../detour_mode.dart';
 import '../subscription_detail_format.dart';
 import '../../../services/l10n/locale_controller.dart';
+import '../../../widgets/safe_bottom.dart';
 
 /// Settings tab: tag-prefix field, detour-mode radio group (+ sub-options) and
 /// the subscription-info block. Extracted verbatim from `_buildSettingsTab` /
@@ -128,7 +129,7 @@ class SubscriptionSettingsTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16).withSafeBottom(context),
       children: [
         Text(getLocalText.s("Tag prefix"), style: theme.textTheme.titleSmall?.copyWith(
           color: theme.colorScheme.primary,

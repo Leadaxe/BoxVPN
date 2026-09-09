@@ -283,7 +283,7 @@ class _OutboundViewScreenState extends State<OutboundViewScreen> {
     }
 
     return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 24), // bottom-inset: handled — body в SafeArea
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
@@ -335,7 +335,7 @@ class _OutboundViewScreenState extends State<OutboundViewScreen> {
   Widget _buildOverviewTab(BuildContext context) {
     final node = widget.config[widget.tag];
     return ListView(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24), // bottom-inset: handled — body в SafeArea
       children: [
         _sectionHeader(context, 'Parameters'),
         ..._paramRows(context, node),

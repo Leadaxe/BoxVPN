@@ -7,6 +7,7 @@ import '../../../services/l10n/locale_controller.dart';
 import '../../../services/relative_time.dart';
 import '../../../services/workspaces/workspace_controller.dart';
 import '../../../services/workspaces/workspace_store.dart';
+import '../../../widgets/app_bottom_sheet.dart';
 
 /// §417 — кнопка справа от «L×Box»: имя текущего workspace и попап с двумя
 /// разделами — Load (слоты, у каждого меню «⋮»: переименовать / удалить) и
@@ -49,7 +50,7 @@ class WorkspaceMenuButton extends StatelessWidget {
       for (final s in ws.slots) s.name: await WorkspaceStore.I.slotSizeBytes(s.name),
     };
     if (!context.mounted) return;
-    final action = await showModalBottomSheet<_SheetAction>(
+    final action = await showAppBottomSheet<_SheetAction>(
       context: context,
       showDragHandle: true,
       builder: (_) => _WorkspaceSheet(sizes: sizes),
