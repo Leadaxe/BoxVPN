@@ -291,17 +291,22 @@ class BoxService(
             // уведомление в bringDownServiceLocked. Если за это время сервис
             // уже стартовал по-настоящему — ничего не трогаем. stopSelf(startId):
             // не гасить старт, пришедший следом.
-            if (status == VpnStatus.Stopped) {
-                runCatching {
-                    notification.show(
-                        ConfigManager.notificationTitle,
-                        L10n.str(service, R.string.notification_status_starting),
-                    )
-                }
-                notification.stop()
-                service.stopSelf(startId)
-                Log.w(TAG, "[vpn §430] bounce done — foreground shown and removed, stopSelf($startId)")
+            if (status != VpnStatus.Stopped) {
+                // Настоящий старт уже прошёл: ничего не трогаем. Система
+                // запоминает результат ПОСЛЕДНЕГО onStartCommand — вернуть
+                // NOT_STICKY здесь значило бы отключить sticky-рестарт §428 у
+                // живого сервиса.
+                return Service.START_STICKY
             }
+            runCatching {
+                notification.show(
+                    ConfigManager.notificationTitle,
+                    L10n.str(service, R.string.notification_status_starting),
+                )
+            }
+            notification.stop()
+            service.stopSelf(startId)
+            Log.w(TAG, "[vpn §430] bounce done — foreground shown and removed, stopSelf($startId)")
             return Service.START_NOT_STICKY
         }
         if (intent == null) {
