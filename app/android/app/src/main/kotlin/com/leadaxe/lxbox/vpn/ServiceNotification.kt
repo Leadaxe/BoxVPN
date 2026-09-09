@@ -38,6 +38,25 @@ class ServiceNotification(private val service: Service) {
             }
         }
 
+        /// §430 — в шторке висит уведомление id=1, хотя сервис в Stopped:
+        /// утечка от УМЕРШЕГО процесса.
+        ///
+        /// Гонка в AMS (см. §428/§430): если tun-интерфейс исчезает раньше
+        /// binder-death, `serviceProcessGoneLocked` стирает запись сервиса без
+        /// `cancelForegroundNotificationLocked`, и уведомление с
+        /// FLAG_FOREGROUND_SERVICE остаётся в шторке навсегда — «работает в
+        /// фоне», а приложение честно показывает Start (4PDA, Redmi 12s).
+        ///
+        /// Снять его из приложения нельзя: NMS отбрасывает cancel() на
+        /// уведомление с этим флагом, а при подмене под тем же id переносит
+        /// флаг на новое (проверено на AVD: flags 0x62 → 0x48, бит 0x40
+        /// остаётся). Единственный путь — bounce сервиса
+        /// (`BoxVpnService.clearStaleNotification`): AMS снимает уведомление
+        /// сам при штатной остановке foreground-сервиса.
+        fun isStalePresent(): Boolean = runCatching {
+            BoxApplication.notificationManager.activeNotifications.any { it.id == NOTIFICATION_ID }
+        }.getOrDefault(false)
+
         /// §428 — обычное уведомление на том же канале, живёт после stopSelf()
         /// и без сервиса (зовётся и из VpnWatchdogReceiver). Без
         /// POST_NOTIFICATIONS (API 33+) система молча его не покажет — это

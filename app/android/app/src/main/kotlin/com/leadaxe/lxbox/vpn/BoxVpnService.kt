@@ -44,6 +44,26 @@ class BoxVpnService : VpnService(), PlatformInterfaceWrapper {
         const val ACTION_RECONNECT = "com.leadaxe.lxbox.ACTION_RECONNECT"
         /// §223 — live-перерисовка лейблов уведомления при смене ноды (#20).
         const val ACTION_UPDATE_NOTIFICATION = "com.leadaxe.lxbox.ACTION_UPDATE_NOTIFICATION"
+        /// §430 — запасной путь снятия зависшего уведомления: поднять сервис
+        /// в foreground с тем же id и штатно остановить — AMS снимет сам.
+        const val ACTION_CLEAR_STALE_NOTIFICATION = "com.leadaxe.lxbox.ACTION_CLEAR_STALE_NOTIFICATION"
+
+        /// §430 — снять уведомление, зависшее от умершего сервиса (см.
+        /// `ServiceNotification.isStalePresent`): короткий foreground-старт/стоп
+        /// сервиса под тем же id — запись сервиса снова владеет уведомлением,
+        /// и AMS снимает его в bringDownServiceLocked. Зовётся из
+        /// MainActivity.onCreate: юзер открыл приложение и видит ложь в шторке.
+        /// Без POST_NOTIFICATIONS (API 33+) утечки не бывает — система такое
+        /// уведомление и не показывает.
+        fun clearStaleNotification(context: Context) {
+            if (currentStatus != VpnStatus.Stopped) return
+            if (!ServiceNotification.isStalePresent()) return
+            Log.w(TAG, "[vpn §430] stale FGS notification from a dead service — bouncing service so AMS cancels it")
+            val intent = Intent(context, BoxVpnService::class.java)
+                .apply { action = ACTION_CLEAR_STALE_NOTIFICATION }
+            runCatching { ContextCompat.startForegroundService(context, intent) }
+                .onFailure { Log.w(TAG, "[vpn §430] bounce start failed: $it") }
+        }
         const val BROADCAST_STATUS = "com.leadaxe.lxbox.BROADCAST_STATUS"
         const val EXTRA_STATUS = "status"
 

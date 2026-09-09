@@ -249,6 +249,10 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // §430 — юзер открыл приложение, а в шторке уведомление от умершего
+        // сервиса: короткий bounce сервиса, чтобы AMS его снял.
+        runCatching { BoxVpnService.clearStaleNotification(this) }
+            .onFailure { Log.w("MainActivity", "clearStaleNotification failed: ${it.message}") }
         handleQuickAction(intent)
     }
 

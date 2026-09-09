@@ -285,6 +285,25 @@ class BoxService(
     /// не трогают.
     fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Log.d(TAG, "[vpn] onStartCommand action=${intent?.action} status=${status.name} startId=$startId receiverRegistered=$receiverRegistered")
+        if (intent?.action == BoxVpnService.ACTION_CLEAR_STALE_NOTIFICATION) {
+            // §430 — bounce: стать foreground под тем же id (запись сервиса
+            // снова владеет уведомлением) и штатно остановиться — AMS снимает
+            // уведомление в bringDownServiceLocked. Если за это время сервис
+            // уже стартовал по-настоящему — ничего не трогаем. stopSelf(startId):
+            // не гасить старт, пришедший следом.
+            if (status == VpnStatus.Stopped) {
+                runCatching {
+                    notification.show(
+                        ConfigManager.notificationTitle,
+                        L10n.str(service, R.string.notification_status_starting),
+                    )
+                }
+                notification.stop()
+                service.stopSelf(startId)
+                Log.w(TAG, "[vpn §430] bounce done — foreground shown and removed, stopSelf($startId)")
+            }
+            return Service.START_NOT_STICKY
+        }
         if (intent == null) {
             val n = BootReceiver.noteStickyRestart(service)
             Log.w(TAG, "[vpn §428] sticky restart #$n (limit=${BootReceiver.STICKY_RESTART_LIMIT} per ${BootReceiver.STICKY_RESTART_WINDOW_MS / 1000}s)")
