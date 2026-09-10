@@ -69,7 +69,19 @@ flutter:
 flutter_launcher_icons:
   image_path: assets/icons/app_icon.png
   android: true
+  # Адаптивная иконка (Android 8+): без неё система сама подставляет белую
+  # подложку под legacy-PNG — это и была белая рамка в лаунчере и в F-Droid.
+  adaptive_icon_background: assets/icons/ic_launcher_background.png
+  adaptive_icon_foreground: assets/icons/ic_launcher_foreground.png
+  # Графика уже вписана в безопасную зону самого файла (60% холста),
+  # поэтому собственный отступ генератора выключен.
+  adaptive_icon_foreground_inset: 0
   ios: true
+  # iOS сам накладывает скругление (~22.4%), поэтому исходник для него —
+  # полный квадрат без своего радиуса: иначе по углам остаётся белое и
+  # маска срезает графику. App Store не принимает альфа-канал.
+  image_path_ios: assets/icons/app_icon_ios.png
+  remove_alpha_ios: true
   macos:
     generate: true
   windows:

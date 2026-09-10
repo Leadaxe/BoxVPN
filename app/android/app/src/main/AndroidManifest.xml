@@ -125,6 +125,9 @@
             </intent-filter>
         </service>
 
+        <!-- ⚠ flutter_launcher_icons затирает android:icon этого сервиса на
+             @mipmap/ic_launcher при каждом прогоне — после генерации иконок
+             вернуть @drawable/ic_lxbox_tile: тайл обязан быть монохромным. -->
         <service
             android:name=".vpn.LxBoxTileService"
             android:label="@string/app_name"
